@@ -1,1 +1,1 @@
-Sitemap: https://thigm85.github.io/blog/sitemap.xml
+Sitemap: http://tgmstat.com/blog/sitemap.xml
