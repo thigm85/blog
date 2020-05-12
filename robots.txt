@@ -1,1 +1,1 @@
-Sitemap: http://tgmstat.com/sitemap.xml
+Sitemap: http://tgmstat.com/blog/sitemap.xml
