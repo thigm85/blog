@@ -2,6 +2,7 @@
 toc: true
 layout: post
 search_exclude: false
+hide: true
 description: A minimal example of using markdown with fastpages.
 categories: [markdown]
 title: An Example Markdown Post
