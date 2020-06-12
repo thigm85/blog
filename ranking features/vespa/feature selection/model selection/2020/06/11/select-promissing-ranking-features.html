@@ -334,7 +334,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>There are 163 ranking features available. Below we print the first three as a sample.</p>
+<p>There are 163 ranking features available.</p>
 
 </div>
 </div>
@@ -724,6 +724,14 @@ window.onload = wrap_img;
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Below we run the subset selection algorithm with only one feature.</p>
+
+</div>
+</div>
+</div>
     
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -744,9 +752,8 @@ window.onload = wrap_img;
 <span class="n">Y</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">binary_relevance</span>
 <span class="n">X</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">features</span><span class="p">]</span>
 
-<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">trange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">max_number_features</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">desc</span> <span class="o">=</span> <span class="s1">'Loop...'</span><span class="p">):</span>
+<span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="n">max_number_features</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
     <span class="k">for</span> <span class="n">combo</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span><span class="n">k</span><span class="p">):</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">combo</span><span class="p">)</span>
         <span class="n">tmp_result</span> <span class="o">=</span> <span class="n">fit_logistic_reg</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">combo</span><span class="p">)],</span><span class="n">Y</span><span class="p">)</span>   
         <span class="n">log_probs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">tmp_result</span><span class="p">)</span>                   
         <span class="n">feature_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">combo</span><span class="p">)</span>
@@ -764,183 +771,6 @@ window.onload = wrap_img;
 </pre></div>
 
     </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>('fieldMatch(abstract)',)
-('fieldMatch(abstract).absoluteOccurrence',)
-('fieldMatch(abstract).absoluteProximity',)
-('fieldMatch(abstract).completeness',)
-('fieldMatch(abstract).degradedMatches',)
-('fieldMatch(abstract).earliness',)
-('fieldMatch(abstract).fieldCompleteness',)
-('fieldMatch(abstract).gapLength',)
-('fieldMatch(abstract).gaps',)
-('fieldMatch(abstract).head',)
-('fieldMatch(abstract).importance',)
-('fieldMatch(abstract).longestSequence',)
-('fieldMatch(abstract).longestSequenceRatio',)
-('fieldMatch(abstract).matches',)
-('fieldMatch(abstract).occurrence',)
-('fieldMatch(abstract).orderness',)
-('fieldMatch(abstract).outOfOrder',)
-('fieldMatch(abstract).proximity',)
-('fieldMatch(abstract).queryCompleteness',)
-('fieldMatch(abstract).relatedness',)
-('fieldMatch(abstract).segmentDistance',)
-('fieldMatch(abstract).segmentProximity',)
-('fieldMatch(abstract).segments',)
-('fieldMatch(abstract).significance',)
-('fieldMatch(abstract).significantOccurrence',)
-('fieldMatch(abstract).tail',)
-('fieldMatch(abstract).unweightedProximity',)
-('fieldMatch(abstract).weight',)
-('fieldMatch(abstract).weightedAbsoluteOccurrence',)
-('fieldMatch(abstract).weightedOccurrence',)
-('fieldMatch(abstract_t5)',)
-('fieldMatch(abstract_t5).absoluteOccurrence',)
-('fieldMatch(abstract_t5).absoluteProximity',)
-('fieldMatch(abstract_t5).completeness',)
-('fieldMatch(abstract_t5).degradedMatches',)
-('fieldMatch(abstract_t5).earliness',)
-('fieldMatch(abstract_t5).fieldCompleteness',)
-('fieldMatch(abstract_t5).gapLength',)
-('fieldMatch(abstract_t5).gaps',)
-('fieldMatch(abstract_t5).head',)
-('fieldMatch(abstract_t5).importance',)
-('fieldMatch(abstract_t5).longestSequence',)
-('fieldMatch(abstract_t5).longestSequenceRatio',)
-('fieldMatch(abstract_t5).matches',)
-('fieldMatch(abstract_t5).occurrence',)
-('fieldMatch(abstract_t5).orderness',)
-('fieldMatch(abstract_t5).outOfOrder',)
-('fieldMatch(abstract_t5).proximity',)
-('fieldMatch(abstract_t5).queryCompleteness',)
-('fieldMatch(abstract_t5).relatedness',)
-('fieldMatch(abstract_t5).segmentDistance',)
-('fieldMatch(abstract_t5).segmentProximity',)
-('fieldMatch(abstract_t5).segments',)
-('fieldMatch(abstract_t5).significance',)
-('fieldMatch(abstract_t5).significantOccurrence',)
-('fieldMatch(abstract_t5).tail',)
-('fieldMatch(abstract_t5).unweightedProximity',)
-('fieldMatch(abstract_t5).weight',)
-('fieldMatch(abstract_t5).weightedAbsoluteOccurrence',)
-('fieldMatch(abstract_t5).weightedOccurrence',)
-('fieldMatch(body_text)',)
-('fieldMatch(body_text).absoluteOccurrence',)
-('fieldMatch(body_text).absoluteProximity',)
-('fieldMatch(body_text).completeness',)
-('fieldMatch(body_text).degradedMatches',)
-('fieldMatch(body_text).earliness',)
-('fieldMatch(body_text).fieldCompleteness',)
-('fieldMatch(body_text).gapLength',)
-('fieldMatch(body_text).gaps',)
-('fieldMatch(body_text).head',)
-('fieldMatch(body_text).importance',)
-('fieldMatch(body_text).longestSequence',)
-('fieldMatch(body_text).longestSequenceRatio',)
-('fieldMatch(body_text).matches',)
-('fieldMatch(body_text).occurrence',)
-('fieldMatch(body_text).orderness',)
-('fieldMatch(body_text).outOfOrder',)
-('fieldMatch(body_text).proximity',)
-('fieldMatch(body_text).queryCompleteness',)
-('fieldMatch(body_text).relatedness',)
-('fieldMatch(body_text).segmentDistance',)
-('fieldMatch(body_text).segmentProximity',)
-('fieldMatch(body_text).segments',)
-('fieldMatch(body_text).significance',)
-('fieldMatch(body_text).significantOccurrence',)
-('fieldMatch(body_text).tail',)
-('fieldMatch(body_text).unweightedProximity',)
-('fieldMatch(body_text).weight',)
-('fieldMatch(body_text).weightedAbsoluteOccurrence',)
-('fieldMatch(body_text).weightedOccurrence',)
-('fieldMatch(title)',)
-('fieldMatch(title).absoluteOccurrence',)
-('fieldMatch(title).absoluteProximity',)
-('fieldMatch(title).completeness',)
-('fieldMatch(title).degradedMatches',)
-('fieldMatch(title).earliness',)
-('fieldMatch(title).fieldCompleteness',)
-('fieldMatch(title).gapLength',)
-('fieldMatch(title).gaps',)
-('fieldMatch(title).head',)
-('fieldMatch(title).importance',)
-('fieldMatch(title).longestSequence',)
-('fieldMatch(title).longestSequenceRatio',)
-('fieldMatch(title).matches',)
-('fieldMatch(title).occurrence',)
-('fieldMatch(title).orderness',)
-('fieldMatch(title).outOfOrder',)
-('fieldMatch(title).proximity',)
-('fieldMatch(title).queryCompleteness',)
-('fieldMatch(title).relatedness',)
-('fieldMatch(title).segmentDistance',)
-('fieldMatch(title).segmentProximity',)
-('fieldMatch(title).segments',)
-('fieldMatch(title).significance',)
-('fieldMatch(title).significantOccurrence',)
-('fieldMatch(title).tail',)
-('fieldMatch(title).unweightedProximity',)
-('fieldMatch(title).weight',)
-('fieldMatch(title).weightedAbsoluteOccurrence',)
-('fieldMatch(title).weightedOccurrence',)
-('nativeFieldMatch',)
-('nativeProximity',)
-('nativeRank',)
-('textSimilarity(abstract).fieldCoverage',)
-('textSimilarity(abstract).order',)
-('textSimilarity(abstract).proximity',)
-('textSimilarity(abstract).queryCoverage',)
-('textSimilarity(abstract).score',)
-('textSimilarity(abstract_t5).fieldCoverage',)
-('textSimilarity(abstract_t5).order',)
-('textSimilarity(abstract_t5).proximity',)
-('textSimilarity(abstract_t5).queryCoverage',)
-('textSimilarity(abstract_t5).score',)
-('textSimilarity(body_text).fieldCoverage',)
-('textSimilarity(body_text).order',)
-('textSimilarity(body_text).proximity',)
-('textSimilarity(body_text).queryCoverage',)
-('textSimilarity(body_text).score',)
-('textSimilarity(body_text_t5).fieldCoverage',)
-('textSimilarity(body_text_t5).order',)
-('textSimilarity(body_text_t5).proximity',)
-('textSimilarity(body_text_t5).queryCoverage',)
-('textSimilarity(body_text_t5).score',)
-('textSimilarity(title).fieldCoverage',)
-('textSimilarity(title).order',)
-('textSimilarity(title).proximity',)
-('textSimilarity(title).queryCoverage',)
-('textSimilarity(title).score',)
-('attribute(has_full_text)',)
-('bm25(abstract)',)
-('bm25(abstract_t5)',)
-('bm25(body_text)',)
-('bm25(title)',)
-('fieldLength(abstract)',)
-('fieldLength(body_text)',)
-('fieldLength(title)',)
-('freshness(timestamp)',)
-('nativeRank(abstract)',)
-('nativeRank(abstract_t5)',)
-('nativeRank(title)',)
-('rawScore(specter_embedding)',)
-('rawScore(abstract_embedding)',)
-('rawScore(title_embedding)',)
-
-</pre>
-</div>
-</div>
-
 </div>
 </div>
 
@@ -1512,7 +1342,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Using the predicting performance of individual features does not seem a good approach to eliminate features from a grid search by greedy algorithms.</p>
+<p>Using the predicting performance of individual features does not seem a good approach to eliminate features from a grid search by greedy algorithms. The reason is that many features that perform poorly when considered in isolation would shine when combined with other complementary features.</p>
 
 </div>
 </div>
