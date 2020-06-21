@@ -12,3 +12,5 @@ _notebooks/.ipynb_checkpoints
 .tweet-cache
 __pycache__
 .idea
+_notebooks/data/
+Pipfile
