@@ -1,0 +1,972 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>How to connect and interact with search applications from python | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="How to connect and interact with search applications from python" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A pyvespa library overview. Connect, query, collect data and evaluate query models." />
+<meta property="og:description" content="A pyvespa library overview. Connect, query, collect data and evaluate query models." />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/search/cord19/2020/10/28/connect-to-vespa-instance.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/search/cord19/2020/10/28/connect-to-vespa-instance.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-28T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"A pyvespa library overview. Connect, query, collect data and evaluate query models.","@type":"BlogPosting","headline":"How to connect and interact with search applications from python","dateModified":"2020-10-28T00:00:00-05:00","datePublished":"2020-10-28T00:00:00-05:00","url":"https://thigm85.github.io/blog/vespa/pyvespa/search/cord19/2020/10/28/connect-to-vespa-instance.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/search/cord19/2020/10/28/connect-to-vespa-instance.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>How to connect and interact with search applications from python | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="How to connect and interact with search applications from python" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A pyvespa library overview. Connect, query, collect data and evaluate query models." />
+<meta property="og:description" content="A pyvespa library overview. Connect, query, collect data and evaluate query models." />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/search/cord19/2020/10/28/connect-to-vespa-instance.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/search/cord19/2020/10/28/connect-to-vespa-instance.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-10-28T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"A pyvespa library overview. Connect, query, collect data and evaluate query models.","@type":"BlogPosting","headline":"How to connect and interact with search applications from python","dateModified":"2020-10-28T00:00:00-05:00","datePublished":"2020-10-28T00:00:00-05:00","url":"https://thigm85.github.io/blog/vespa/pyvespa/search/cord19/2020/10/28/connect-to-vespa-instance.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/search/cord19/2020/10/28/connect-to-vespa-instance.html"},"@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Thiago G. Martins</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">How to connect and interact with search applications from python</h1><p class="page-description">A pyvespa library overview. Connect, query, collect data and evaluate query models.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-10-28T00:00:00-05:00" itemprop="datePublished">
+        Oct 28, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#vespa">vespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#pyvespa">pyvespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#search">search</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#cord19">cord19</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/thigm85/blog/tree/master/_notebooks/2020-10-28-connect-to-vespa-instance.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/thigm85/blog/blob/master/_notebooks/2020-10-28-connect-to-vespa-instance.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Install">Install </a></li>
+<li class="toc-entry toc-h2"><a href="#Connect-to-a-running-Vespa-application">Connect to a running Vespa application </a></li>
+<li class="toc-entry toc-h2"><a href="#Define-a-Query-model">Define a Query model </a></li>
+<li class="toc-entry toc-h2"><a href="#Query-the-vespa-app">Query the vespa app </a></li>
+<li class="toc-entry toc-h2"><a href="#Labelled-data">Labelled data </a></li>
+<li class="toc-entry toc-h2"><a href="#Collect-training-data">Collect training data </a></li>
+<li class="toc-entry toc-h2"><a href="#Evaluating-a-query-model">Evaluating a query model </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-10-28-connect-to-vespa-instance.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><a href="https://vespa.ai/">Vespa</a> is the faster, more scalable and advanced search engine currently available, imho. It has a native tensor evaluation framework, can perform <a href="https://blog.vespa.ai/approximate-nearest-neighbor-search-in-vespa-part-1/">approximate nearest neighbor search</a> and deploy the latest advancencements in NLP modeling, such as <a href="https://blog.vespa.ai/efficient-open-domain-question-answering-on-vespa/">BERT models</a>. This post will give you an overview of the Vespa python API available through the pyvespa library. The main goal of the library is to allow for faster prototyping and to facilitate Machine Learning experiments for Vespa applications.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We are going to connect to the <a href="https://cord19.vespa.ai/">CORD-19 search app</a> and use it as an example here. You can later use your own application to replicate the following steps. Future posts will go deeper into each topic described in this overview tutorial.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can also run the steps contained here from <a href="https://colab.research.google.com/github/vespa-engine/pyvespa/blob/master/docs/sphinx/source/connect-to-vespa-instance.ipynb">Google Colab</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Install">
+<a class="anchor" href="#Install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install<a class="anchor-link" href="#Install"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="alert alert-warning">
+
+**Warning**: The library is under active development and backward incompatible changes may occur.
+
+</div>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The library is available at PyPI and therefore can be installed with <code>pip</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pip install pyvespa
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Connect-to-a-running-Vespa-application">
+<a class="anchor" href="#Connect-to-a-running-Vespa-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Connect to a running Vespa application<a class="anchor-link" href="#Connect-to-a-running-Vespa-application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can connect to a running Vespa application by creating an instance of <a href="reference-api.rst#vespa.application.Vespa">Vespa</a> with the appropriate url. The resulting <code>app</code> will then be used to communicate with the application.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.application</span> <span class="kn">import</span> <span class="n">Vespa</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Vespa</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s2">"https://api.cord19.vespa.ai"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Define-a-Query-model">
+<a class="anchor" href="#Define-a-Query-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define a Query model<a class="anchor-link" href="#Define-a-Query-model"> </a>
+</h2>
+<blockquote>
+<p>Easily define matching and ranking criteria</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When building a search application, we usually want to experiment with different query models. A <a href="reference-api.rst#vespa.query.Query">Query</a> model consists of a match phase and a ranking phase. The matching phase will define how to match documents based on the query sent and the ranking phase will define how to rank the matched documents. Both phases can get quite complex and being able to easily express and experiment with them is very valuable.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the example below we define the match phase to be the <a href="reference-api.rst#vespa.query.Union">Union</a> of the <a href="reference-api.rst#vespa.query.WeakAnd">WeakAnd</a> and the <a href="reference-api.rst#vespa.query.ANN">ANN</a> operators. The <code>WeakAnd</code> will match documents based on query terms while the Approximate Nearest Neighbor (<code>ANN</code>) operator will match documents based on the distance between the query and document embeddings. This is an illustration of how easy it is to combine term and semantic matching in Vespa.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.query</span> <span class="kn">import</span> <span class="n">Union</span><span class="p">,</span> <span class="n">WeakAnd</span><span class="p">,</span> <span class="n">ANN</span>
+<span class="kn">from</span> <span class="nn">random</span> <span class="kn">import</span> <span class="n">random</span>
+
+<span class="n">match_phase</span> <span class="o">=</span> <span class="n">Union</span><span class="p">(</span>
+    <span class="n">WeakAnd</span><span class="p">(</span><span class="n">hits</span> <span class="o">=</span> <span class="mi">10</span><span class="p">),</span> 
+    <span class="n">ANN</span><span class="p">(</span>
+        <span class="n">doc_vector</span><span class="o">=</span><span class="s2">"title_embedding"</span><span class="p">,</span> 
+        <span class="n">query_vector</span><span class="o">=</span><span class="s2">"title_vector"</span><span class="p">,</span> 
+        <span class="n">embedding_model</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">[</span><span class="n">random</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">768</span><span class="p">)],</span>
+        <span class="n">hits</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">"title"</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We then define the ranking to be done by the <code>bm25</code> rank-profile that is already defined in the <a href="https://github.com/vespa-engine/sample-apps/blob/master/vespa-cloud/cord-19-search/src/main/application/schemas/doc.sd">application schema</a>. We set <code>list_features=True</code> to be able to collect ranking-features later in this tutorial. After defining the <code>match_phase</code> and the <code>rank_profile</code> we can instantiate the <code>Query</code> model.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.query</span> <span class="kn">import</span> <span class="n">Query</span><span class="p">,</span> <span class="n">RankProfile</span>
+
+<span class="n">rank_profile</span> <span class="o">=</span> <span class="n">RankProfile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"bm25"</span><span class="p">,</span> <span class="n">list_features</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">query_model</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span><span class="n">match_phase</span><span class="o">=</span><span class="n">match_phase</span><span class="p">,</span> <span class="n">rank_profile</span><span class="o">=</span><span class="n">rank_profile</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Query-the-vespa-app">
+<a class="anchor" href="#Query-the-vespa-app" aria-hidden="true"><span class="octicon octicon-link"></span></a>Query the vespa app<a class="anchor-link" href="#Query-the-vespa-app"> </a>
+</h2>
+<blockquote>
+<p>Send queries via the query API. See the <a href="query.ipynb">query page</a> for more examples.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can use the <code>query_model</code> that we just defined to issue queries to the application via the <code>query</code> method.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+    <span class="n">query</span><span class="o">=</span><span class="s2">"Is remdesivir an effective treatment for COVID-19?"</span><span class="p">,</span> 
+    <span class="n">query_model</span><span class="o">=</span><span class="n">query_model</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can see the number of documents that were retrieved by Vespa:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_result</span><span class="o">.</span><span class="n">number_documents_retrieved</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>1121</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>And the number of documents that were returned to us:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">query_result</span><span class="o">.</span><span class="n">hits</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>10</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Labelled-data">
+<a class="anchor" href="#Labelled-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Labelled data<a class="anchor-link" href="#Labelled-data"> </a>
+</h2>
+<blockquote>
+<p>How to structure labelled data</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We often need to either evaluate query models or to collect data to improve query models through ML. In both cases we usually need labelled data. Let's create some labelled data to illustrate their expected format and their usage in the library.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Each data point contains a <code>query_id</code>, a <code>query</code> and <code>relevant_docs</code> associated with the query.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">labelled_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">"query_id"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
+        <span class="s2">"query"</span><span class="p">:</span> <span class="s2">"Intrauterine virus infections and congenital heart disease"</span><span class="p">,</span>
+        <span class="s2">"relevant_docs"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s2">"query_id"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> 
+        <span class="s2">"query"</span><span class="p">:</span> <span class="s2">"Clinical and immunologic studies in identical twins discordant for systemic lupus erythematosus"</span><span class="p">,</span>
+        <span class="s2">"relevant_docs"</span><span class="p">:</span> <span class="p">[{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s2">"id"</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">"score"</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Non-relevant documents are assigned <code>"score": 0</code> by default. Relevant documents will be assigned <code>"score": 1</code> by default if the field is missing from the labelled data. The defaults for both relevant and non-relevant documents can be modified on the appropriate methods.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Collect-training-data">
+<a class="anchor" href="#Collect-training-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Collect training data<a class="anchor-link" href="#Collect-training-data"> </a>
+</h2>
+<blockquote>
+<p>Collect training data to analyse and/or improve ranking functions. See the <a href="collect-training-data.ipynb">collect training data page</a> for more examples.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can collect training data with the <a href="reference-api.rst#vespa.application.Vespa.collect_training_data">collect_training_data</a> method according to a specific <a href="reference-api.rst#vespa.query.Query">Query</a> model. Below we will collect two documents for each query in addition to the relevant ones.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">training_data_batch</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">collect_training_data</span><span class="p">(</span>
+    <span class="n">labelled_data</span> <span class="o">=</span> <span class="n">labelled_data</span><span class="p">,</span>
+    <span class="n">id_field</span> <span class="o">=</span> <span class="s2">"id"</span><span class="p">,</span>
+    <span class="n">query_model</span> <span class="o">=</span> <span class="n">query_model</span><span class="p">,</span>
+    <span class="n">number_additional_docs</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"rankfeatures"</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Many rank features are returned by default. We can select some of them to inspect:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">training_data_batch</span><span class="p">[</span>
+    <span class="p">[</span>
+        <span class="s2">"document_id"</span><span class="p">,</span> <span class="s2">"query_id"</span><span class="p">,</span> <span class="s2">"label"</span><span class="p">,</span> 
+        <span class="s2">"textSimilarity(title).proximity"</span><span class="p">,</span> 
+        <span class="s2">"textSimilarity(title).queryCoverage"</span><span class="p">,</span> 
+        <span class="s2">"textSimilarity(title).score"</span>
+    <span class="p">]</span>
+<span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>document_id</th>
+      <th>query_id</th>
+      <th>label</th>
+      <th>textSimilarity(title).proximity</th>
+      <th>textSimilarity(title).queryCoverage</th>
+      <th>textSimilarity(title).score</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.000000</td>
+      <td>0.142857</td>
+      <td>0.055357</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>255164</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>145189</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.739583</td>
+      <td>0.571429</td>
+      <td>0.587426</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>0</td>
+      <td>1</td>
+      <td>0.437500</td>
+      <td>0.142857</td>
+      <td>0.224554</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>255164</td>
+      <td>0</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>145189</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.739583</td>
+      <td>0.571429</td>
+      <td>0.587426</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>1</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.000000</td>
+      <td>0.083333</td>
+      <td>0.047222</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>232555</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>13944</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>0.250000</td>
+      <td>0.612500</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>5</td>
+      <td>1</td>
+      <td>1</td>
+      <td>0.000000</td>
+      <td>0.083333</td>
+      <td>0.041667</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>232555</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>13944</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1.000000</td>
+      <td>0.250000</td>
+      <td>0.612500</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Evaluating-a-query-model">
+<a class="anchor" href="#Evaluating-a-query-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Evaluating a query model<a class="anchor-link" href="#Evaluating-a-query-model"> </a>
+</h2>
+<blockquote>
+<p>Define metrics and evaluate query models. See the <a href="evaluation.ipynb">evaluation page</a> for more examples.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will define the following evaluation metrics:</p>
+<ul>
+<li>
+<p>% of documents retrieved per query</p>
+</li>
+<li>
+<p>recall @ 10 per query</p>
+</li>
+<li>
+<p>MRR @ 10 per query</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.evaluation</span> <span class="kn">import</span> <span class="n">MatchRatio</span><span class="p">,</span> <span class="n">Recall</span><span class="p">,</span> <span class="n">ReciprocalRank</span>
+
+<span class="n">eval_metrics</span> <span class="o">=</span> <span class="p">[</span><span class="n">MatchRatio</span><span class="p">(),</span> <span class="n">Recall</span><span class="p">(</span><span class="n">at</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> <span class="n">ReciprocalRank</span><span class="p">(</span><span class="n">at</span><span class="o">=</span><span class="mi">10</span><span class="p">)]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Evaluate:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">evaluation</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+    <span class="n">labelled_data</span> <span class="o">=</span> <span class="n">labelled_data</span><span class="p">,</span>
+    <span class="n">eval_metrics</span> <span class="o">=</span> <span class="n">eval_metrics</span><span class="p">,</span> 
+    <span class="n">query_model</span> <span class="o">=</span> <span class="n">query_model</span><span class="p">,</span> 
+    <span class="n">id_field</span> <span class="o">=</span> <span class="s2">"id"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">evaluation</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>query_id</th>
+      <th>match_ratio_retrieved_docs</th>
+      <th>match_ratio_docs_available</th>
+      <th>match_ratio_value</th>
+      <th>recall_10_value</th>
+      <th>reciprocal_rank_10_value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>1192</td>
+      <td>309201</td>
+      <td>0.003855</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>1144</td>
+      <td>309201</td>
+      <td>0.003700</td>
+      <td>0.0</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="thigm85/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/vespa/pyvespa/search/cord19/2020/10/28/connect-to-vespa-instance.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal blog.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/thigm85" title="thigm85"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Thiagogm" title="Thiagogm"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
