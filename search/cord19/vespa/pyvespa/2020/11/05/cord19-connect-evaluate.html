@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>How to evaluate Vespa ranking functions from python | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="How to evaluate Vespa ranking functions from python" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Using pyvespa](https://pyvespa.readthedocs.io/en/latest/index.html) to evaluate [cord19 search application ranking functions currently in production." />
+<meta property="og:description" content="Using pyvespa](https://pyvespa.readthedocs.io/en/latest/index.html) to evaluate [cord19 search application ranking functions currently in production." />
+<link rel="canonical" href="https://thigm85.github.io/blog/search/cord19/vespa/pyvespa/2020/11/05/cord19-connect-evaluate.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/search/cord19/vespa/pyvespa/2020/11/05/cord19-connect-evaluate.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-05T00:00:00-06:00" />
+<script type="application/ld+json">
+{"headline":"How to evaluate Vespa ranking functions from python","description":"Using pyvespa](https://pyvespa.readthedocs.io/en/latest/index.html) to evaluate [cord19 search application ranking functions currently in production.","datePublished":"2020-11-05T00:00:00-06:00","dateModified":"2020-11-05T00:00:00-06:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/search/cord19/vespa/pyvespa/2020/11/05/cord19-connect-evaluate.html"},"url":"https://thigm85.github.io/blog/search/cord19/vespa/pyvespa/2020/11/05/cord19-connect-evaluate.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>How to evaluate Vespa ranking functions from python | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="How to evaluate Vespa ranking functions from python" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Using pyvespa](https://pyvespa.readthedocs.io/en/latest/index.html) to evaluate [cord19 search application ranking functions currently in production." />
+<meta property="og:description" content="Using pyvespa](https://pyvespa.readthedocs.io/en/latest/index.html) to evaluate [cord19 search application ranking functions currently in production." />
+<link rel="canonical" href="https://thigm85.github.io/blog/search/cord19/vespa/pyvespa/2020/11/05/cord19-connect-evaluate.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/search/cord19/vespa/pyvespa/2020/11/05/cord19-connect-evaluate.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-11-05T00:00:00-06:00" />
+<script type="application/ld+json">
+{"headline":"How to evaluate Vespa ranking functions from python","description":"Using pyvespa](https://pyvespa.readthedocs.io/en/latest/index.html) to evaluate [cord19 search application ranking functions currently in production.","datePublished":"2020-11-05T00:00:00-06:00","dateModified":"2020-11-05T00:00:00-06:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/search/cord19/vespa/pyvespa/2020/11/05/cord19-connect-evaluate.html"},"url":"https://thigm85.github.io/blog/search/cord19/vespa/pyvespa/2020/11/05/cord19-connect-evaluate.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Thiago G. Martins</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">How to evaluate Vespa ranking functions from python</h1><p class="page-description">Using <a href='https://cord19.vespa.ai/'>pyvespa](https://pyvespa.readthedocs.io/en/latest/index.html) to evaluate [cord19 search application</a> ranking functions currently in production.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-11-05T00:00:00-06:00" itemprop="datePublished">
+        Nov 5, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      4 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#search">search</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#cord19">cord19</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#vespa">vespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#pyvespa">pyvespa</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/thigm85/blog/tree/master/_notebooks/2020-11-05-cord19-connect-evaluate.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/thigm85/blog/blob/master/_notebooks/2020-11-05-cord19-connect-evaluate.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Download-processed-data">Download processed data </a></li>
+<li class="toc-entry toc-h2"><a href="#Install-pyvespa">Install pyvespa </a></li>
+<li class="toc-entry toc-h2"><a href="#Format-the-labeled-data-into-expected-pyvespa-format">Format the labeled data into expected pyvespa format </a></li>
+<li class="toc-entry toc-h2"><a href="#Define-query-models-to-be-evaluated">Define query models to be evaluated </a></li>
+<li class="toc-entry toc-h2"><a href="#Define-metrics-to-be-used-in-the-evaluation">Define metrics to be used in the evaluation </a></li>
+<li class="toc-entry toc-h2"><a href="#Evaluate">Evaluate </a></li>
+<li class="toc-entry toc-h2"><a href="#Analyze-results">Analyze results </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-11-05-cord19-connect-evaluate.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Download-processed-data">
+<a class="anchor" href="#Download-processed-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Download processed data<a class="anchor-link" href="#Download-processed-data"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can start by downloading the data that we <a href="https://pyvespa.readthedocs.io/en/latest/use_cases/cord19/cord19_download_parse_trec_covid.html">have processed before</a>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">read_csv</span>
+
+<span class="n">topics</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+    <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://thigm85.github.io/data/cord19/topics.json"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="p">)</span>
+<span class="n">relevance_data</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="s2">"https://thigm85.github.io/data/cord19/relevance_data.csv"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>topics</code> contain data about the 50 topics available, including <code>query</code>, <code>question</code> and <code>narrative</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">topics</span><span class="p">[</span><span class="s2">"1"</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'query': 'coronavirus origin',
+ 'question': 'what is the origin of COVID-19',
+ 'narrative': "seeking range of information about the SARS-CoV-2 virus's origin, including its evolution, animal source, and first transmission into humans"}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>relevance_data</code> contains the relevance judgments for each of the 50 topics.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">relevance_data</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>topic_id</th>
+      <th>round_id</th>
+      <th>cord_uid</th>
+      <th>relevancy</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>1</td>
+      <td>4.5</td>
+      <td>005b2j4b</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>4.0</td>
+      <td>00fmeepz</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>0.5</td>
+      <td>010vptx3</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>2.5</td>
+      <td>0194oljo</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1</td>
+      <td>4.0</td>
+      <td>021q9884</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Install-pyvespa">
+<a class="anchor" href="#Install-pyvespa" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install pyvespa<a class="anchor-link" href="#Install-pyvespa"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We are going to use <a href="https://pyvespa.readthedocs.io/en/latest/index.html">pyvespa</a> to evaluate ranking functions from python.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pip install pyvespa
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>pyvespa</code> provides a python API to Vespa. It allow us to create, modify, deploy and interact with running Vespa instances. The main goal of the library is to allow for faster prototyping and to facilitate Machine Learning experiments for Vespa applications.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Format-the-labeled-data-into-expected-pyvespa-format">
+<a class="anchor" href="#Format-the-labeled-data-into-expected-pyvespa-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>Format the labeled data into expected pyvespa format<a class="anchor-link" href="#Format-the-labeled-data-into-expected-pyvespa-format"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>pyvespa</code> expects labeled data to follow the format illustrated below. It is a list of dict where each dict represents a query containing <code>query_id</code>, <code>query</code> and a list of <code>relevant_docs</code>. Each relevant document contains a required <code>id</code> key and an optional <code>score</code> key.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">labeled_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s1">'query_id'</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s1">'query'</span><span class="p">:</span> <span class="s1">'coronavirus origin'</span><span class="p">,</span>
+        <span class="s1">'relevant_docs'</span><span class="p">:</span> <span class="p">[{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'005b2j4b'</span><span class="p">,</span> <span class="s1">'score'</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'00fmeepz'</span><span class="p">,</span> <span class="s1">'score'</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="s1">'query_id'</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s1">'query'</span><span class="p">:</span> <span class="s1">'coronavirus response to weather changes'</span><span class="p">,</span>
+        <span class="s1">'relevant_docs'</span><span class="p">:</span> <span class="p">[{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'01goni72'</span><span class="p">,</span> <span class="s1">'score'</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="s1">'id'</span><span class="p">:</span> <span class="s1">'03h85lvy'</span><span class="p">,</span> <span class="s1">'score'</span><span class="p">:</span> <span class="mi">2</span><span class="p">}]</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can create <code>labeled_data</code> from the <code>topics</code> and <code>relevance_data</code> that we downloaded before. We are only going to include documents with relevance score &gt; 0 into the final list.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">labeled_data</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s2">"query_id"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">topic_id</span><span class="p">),</span> 
+        <span class="s2">"query"</span><span class="p">:</span> <span class="n">topics</span><span class="p">[</span><span class="n">topic_id</span><span class="p">][</span><span class="s2">"query"</span><span class="p">],</span> 
+        <span class="s2">"relevant_docs"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">"id"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"cord_uid"</span><span class="p">],</span> 
+                <span class="s2">"score"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"relevancy"</span><span class="p">]</span>
+            <span class="p">}</span> <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">relevance_data</span><span class="p">[</span><span class="n">relevance_data</span><span class="o">.</span><span class="n">topic_id</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="n">topic_id</span><span class="p">)]</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()</span> <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">"relevancy"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">]</span>
+    <span class="p">}</span> <span class="k">for</span> <span class="n">topic_id</span> <span class="ow">in</span> <span class="n">topics</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Define-query-models-to-be-evaluated">
+<a class="anchor" href="#Define-query-models-to-be-evaluated" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define query models to be evaluated<a class="anchor-link" href="#Define-query-models-to-be-evaluated"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We are going to define two query models to be evaluated here. Both will match all the documents that share at least one term with the query. This is defined by setting <code>match_phase = OR()</code>.</p>
+<p>The difference between the query models happens in the ranking phase. The <code>or_default</code> model will rank documents based on <a href="https://docs.vespa.ai/documentation/nativerank.html">nativeRank</a> while the <code>or_bm25</code> model will rank documents based on <a href="https://docs.vespa.ai/documentation/reference/bm25.html">BM25</a>. Discussion about those two types of ranking is out of the scope of this tutorial. It is enough to know that they rank documents according to two different formulas.</p>
+<p>Those ranking profiles were defined by the team behind the cord19 app and can be found <a href="https://github.com/vespa-engine/sample-apps/blob/master/vespa-cloud/cord-19-search/src/main/application/schemas/doc.sd">here</a>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.query</span> <span class="kn">import</span> <span class="n">Query</span><span class="p">,</span> <span class="n">RankProfile</span><span class="p">,</span> <span class="n">OR</span>
+
+<span class="n">query_models</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"or_default"</span><span class="p">:</span> <span class="n">Query</span><span class="p">(</span>
+        <span class="n">match_phase</span> <span class="o">=</span> <span class="n">OR</span><span class="p">(),</span>
+        <span class="n">rank_profile</span> <span class="o">=</span> <span class="n">RankProfile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"default"</span><span class="p">)</span>
+    <span class="p">),</span>
+    <span class="s2">"or_bm25"</span><span class="p">:</span> <span class="n">Query</span><span class="p">(</span>
+        <span class="n">match_phase</span> <span class="o">=</span> <span class="n">OR</span><span class="p">(),</span>
+        <span class="n">rank_profile</span> <span class="o">=</span> <span class="n">RankProfile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"bm25t5"</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">}</span>
+        
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Define-metrics-to-be-used-in-the-evaluation">
+<a class="anchor" href="#Define-metrics-to-be-used-in-the-evaluation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define metrics to be used in the evaluation<a class="anchor-link" href="#Define-metrics-to-be-used-in-the-evaluation"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We would like to compute the following metrics:</p>
+<ul>
+<li>
+<p>The percentage of documents matched by the query</p>
+</li>
+<li>
+<p>Recall @ 10</p>
+</li>
+<li>
+<p>Reciprocal rank @ 10</p>
+</li>
+<li>
+<p>NDCG @ 10</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.evaluation</span> <span class="kn">import</span> <span class="n">MatchRatio</span><span class="p">,</span> <span class="n">Recall</span><span class="p">,</span> <span class="n">ReciprocalRank</span><span class="p">,</span> <span class="n">NormalizedDiscountedCumulativeGain</span>
+
+<span class="n">eval_metrics</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">MatchRatio</span><span class="p">(),</span> 
+    <span class="n">Recall</span><span class="p">(</span><span class="n">at</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> 
+    <span class="n">ReciprocalRank</span><span class="p">(</span><span class="n">at</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> 
+    <span class="n">NormalizedDiscountedCumulativeGain</span><span class="p">(</span><span class="n">at</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Evaluate">
+<a class="anchor" href="#Evaluate" aria-hidden="true"><span class="octicon octicon-link"></span></a>Evaluate<a class="anchor-link" href="#Evaluate"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Connect to a running Vespa instance:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.application</span> <span class="kn">import</span> <span class="n">Vespa</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Vespa</span><span class="p">(</span><span class="n">url</span> <span class="o">=</span> <span class="s2">"https://api.cord19.vespa.ai"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Compute the metrics defined above for each query model and store the results in a dictionary.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">evaluations</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">query_model</span> <span class="ow">in</span> <span class="n">query_models</span><span class="p">:</span>
+    <span class="n">evaluations</span><span class="p">[</span><span class="n">query_model</span><span class="p">]</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span>
+        <span class="n">labeled_data</span> <span class="o">=</span> <span class="n">labeled_data</span><span class="p">,</span>
+        <span class="n">eval_metrics</span> <span class="o">=</span> <span class="n">eval_metrics</span><span class="p">,</span>
+        <span class="n">query_model</span> <span class="o">=</span> <span class="n">query_models</span><span class="p">[</span><span class="n">query_model</span><span class="p">],</span>
+        <span class="n">id_field</span> <span class="o">=</span> <span class="s2">"cord_uid"</span><span class="p">,</span>
+        <span class="n">hits</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Analyze-results">
+<a class="anchor" href="#Analyze-results" aria-hidden="true"><span class="octicon octicon-link"></span></a>Analyze results<a class="anchor-link" href="#Analyze-results"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let’s first combine the data into one DataFrame in a format to facilitate a comparison between query models.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">metric_values</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">query_model</span> <span class="ow">in</span> <span class="n">query_models</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">eval_metrics</span><span class="p">:</span>
+        <span class="n">metric_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">data</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">"query_model"</span><span class="p">:</span> <span class="n">query_model</span><span class="p">,</span> 
+                    <span class="s2">"metric"</span><span class="p">:</span> <span class="n">metric</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> 
+                    <span class="s2">"value"</span><span class="p">:</span> <span class="n">evaluations</span><span class="p">[</span><span class="n">query_model</span><span class="p">][</span><span class="n">metric</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">"_value"</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+<span class="n">metric_values</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">metric_values</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">metric_values</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>query_model</th>
+      <th>metric</th>
+      <th>value</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>or_default</td>
+      <td>match_ratio</td>
+      <td>0.231523</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>or_default</td>
+      <td>match_ratio</td>
+      <td>0.755509</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>or_default</td>
+      <td>match_ratio</td>
+      <td>0.265400</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>or_default</td>
+      <td>match_ratio</td>
+      <td>0.843403</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>or_default</td>
+      <td>match_ratio</td>
+      <td>0.901592</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can see below that the query model based on BM25 is superior across all metrics considered here.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">metric_values</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s1">'query_model'</span><span class="p">,</span> <span class="s1">'metric'</span><span class="p">])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>value</th>
+    </tr>
+    <tr>
+      <th>query_model</th>
+      <th>metric</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="4" valign="top">or_bm25</th>
+      <th>match_ratio</th>
+      <td>0.412386</td>
+    </tr>
+    <tr>
+      <th>ndcg_10</th>
+      <td>0.651929</td>
+    </tr>
+    <tr>
+      <th>recall_10</th>
+      <td>0.007654</td>
+    </tr>
+    <tr>
+      <th>reciprocal_rank_10</th>
+      <td>0.610270</td>
+    </tr>
+    <tr>
+      <th rowspan="4" valign="top">or_default</th>
+      <th>match_ratio</th>
+      <td>0.412386</td>
+    </tr>
+    <tr>
+      <th>ndcg_10</th>
+      <td>0.602556</td>
+    </tr>
+    <tr>
+      <th>recall_10</th>
+      <td>0.005435</td>
+    </tr>
+    <tr>
+      <th>reciprocal_rank_10</th>
+      <td>0.564437</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can also visualize the distribution of the metrics across the queries to get a better picture of the results.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">plotly.express</span> <span class="k">as</span> <span class="nn">px</span>
+
+<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">box</span><span class="p">(</span>
+    <span class="n">metric_values</span><span class="p">[</span><span class="n">metric_values</span><span class="o">.</span><span class="n">metric</span> <span class="o">==</span> <span class="s2">"ndcg_10"</span><span class="p">],</span> 
+    <span class="n">x</span><span class="o">=</span><span class="s2">"query_model"</span><span class="p">,</span> 
+    <span class="n">y</span><span class="o">=</span><span class="s2">"value"</span><span class="p">,</span> 
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Ndgc @ 10"</span><span class="p">,</span>
+    <span class="n">points</span><span class="o">=</span><span class="s2">"all"</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea ">
+<div>
+        
+        
+            <div id="aec666e5-ae94-4e42-b6cb-4487ba2c26b8" class="plotly-graph-div" style="height:525px; width:100%;"></div>
+            <script type="text/javascript">
+                require(["plotly"], function(Plotly) {
+                    window.PLOTLYENV=window.PLOTLYENV || {};
+                    
+                if (document.getElementById("aec666e5-ae94-4e42-b6cb-4487ba2c26b8")) {
+                    Plotly.newPlot(
+                        'aec666e5-ae94-4e42-b6cb-4487ba2c26b8',
+                        [{"alignmentgroup": "True", "boxpoints": "all", "hovertemplate": "query_model=%{x}<br>value=%{y}<extra></extra>", "legendgroup": "", "marker": {"color": "#636efa"}, "name": "", "notched": false, "offsetgroup": "", "orientation": "v", "showlegend": false, "type": "box", "x": ["or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_default", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25", "or_bm25"], "x0": " ", "xaxis": "x", "y": [0.8641651771646582, 0.0, 0.3333333333333333, 0.5, 0.5508095940041026, 0.578654781976635, 0.6934264036172708, 0.0, 0.4716276524567204, 1.0, 0.0, 0.7132033998374585, 0.38685280723454163, 0.9725374487273694, 0.8597186998521972, 0.8634575313654654, 0.6747939347030872, 0.8667163765466583, 0.0, 0.7328286204777911, 0.43067655807339306, 0.8955796649110442, 0.7835284261227677, 0.9453078548481746, 0.9230376666753053, 0.8175295903539445, 0.8899603164338973, 0.5706417189553201, 0.6179294887171897, 0.8393423304510702, 0.3333333333333333, 0.6309297535714575, 1.0, 0.0, 0.5723986829443736, 0.876848805629635, 0.9325210919548239, 0.7824315052769995, 0.42495990177520937, 0.8191549902783265, 0.9519709359886506, 0.7613042148525074, 0.3010299956639812, 0.5109559939712153, 0.6170963711982227, 0.6182885020492784, 0.7189213298910431, 0.5, 0.0, 0.0, 0.483639123806428, 0.43067655807339306, 0.38685280723454163, 0.0, 0.5508095940041026, 0.8432105155849359, 0.8477774488692931, 0.5348943001333046, 0.7734087246922934, 0.9134015924715543, 0.0, 0.4035099417625012, 0.0, 0.8442012898417177, 0.8597186998521972, 0.8060698463707795, 0.8638227639736545, 0.8602762833296762, 0.43334518829986224, 0.8602762833296762, 0.7044732337431923, 0.3010299956639812, 0.6195656897291874, 0.8886733622104969, 0.9450741516425178, 0.9470808936013915, 0.5870109867507718, 0.7374315349320488, 0.975788054854922, 0.5706417189553201, 1.0, 0.6309297535714575, 0.6698787228770037, 0.0, 0.6960167141575119, 0.7896935286599028, 0.7982650576674577, 0.6642569601887335, 0.9643969434836149, 0.7009695592744093, 0.48247555939075504, 1.0, 0.0, 0.9502344167898356, 0.8681777864964694, 0.9774512754127902, 0.932460068940972, 0.46845052016107697, 0.41183384043543503, 0.6182885020492784], "y0": " ", "yaxis": "y"}],
+                        {"boxmode": "group", "legend": {"tracegroupgap": 0}, "template": {"data": {"bar": [{"error_x": {"color": "#2a3f5f"}, "error_y": {"color": "#2a3f5f"}, "marker": {"line": {"color": "#E5ECF6", "width": 0.5}}, "type": "bar"}], "barpolar": [{"marker": {"line": {"color": "#E5ECF6", "width": 0.5}}, "type": "barpolar"}], "carpet": [{"aaxis": {"endlinecolor": "#2a3f5f", "gridcolor": "white", "linecolor": "white", "minorgridcolor": "white", "startlinecolor": "#2a3f5f"}, "baxis": {"endlinecolor": "#2a3f5f", "gridcolor": "white", "linecolor": "white", "minorgridcolor": "white", "startlinecolor": "#2a3f5f"}, "type": "carpet"}], "choropleth": [{"colorbar": {"outlinewidth": 0, "ticks": ""}, "type": "choropleth"}], "contour": [{"colorbar": {"outlinewidth": 0, "ticks": ""}, "colorscale": [[0.0, "#0d0887"], [0.1111111111111111, "#46039f"], [0.2222222222222222, "#7201a8"], [0.3333333333333333, "#9c179e"], [0.4444444444444444, "#bd3786"], [0.5555555555555556, "#d8576b"], [0.6666666666666666, "#ed7953"], [0.7777777777777778, "#fb9f3a"], [0.8888888888888888, "#fdca26"], [1.0, "#f0f921"]], "type": "contour"}], "contourcarpet": [{"colorbar": {"outlinewidth": 0, "ticks": ""}, "type": "contourcarpet"}], "heatmap": [{"colorbar": {"outlinewidth": 0, "ticks": ""}, "colorscale": [[0.0, "#0d0887"], [0.1111111111111111, "#46039f"], [0.2222222222222222, "#7201a8"], [0.3333333333333333, "#9c179e"], [0.4444444444444444, "#bd3786"], [0.5555555555555556, "#d8576b"], [0.6666666666666666, "#ed7953"], [0.7777777777777778, "#fb9f3a"], [0.8888888888888888, "#fdca26"], [1.0, "#f0f921"]], "type": "heatmap"}], "heatmapgl": [{"colorbar": {"outlinewidth": 0, "ticks": ""}, "colorscale": [[0.0, "#0d0887"], [0.1111111111111111, "#46039f"], [0.2222222222222222, "#7201a8"], [0.3333333333333333, "#9c179e"], [0.4444444444444444, "#bd3786"], [0.5555555555555556, "#d8576b"], [0.6666666666666666, "#ed7953"], [0.7777777777777778, "#fb9f3a"], [0.8888888888888888, "#fdca26"], [1.0, "#f0f921"]], "type": "heatmapgl"}], "histogram": [{"marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "histogram"}], "histogram2d": [{"colorbar": {"outlinewidth": 0, "ticks": ""}, "colorscale": [[0.0, "#0d0887"], [0.1111111111111111, "#46039f"], [0.2222222222222222, "#7201a8"], [0.3333333333333333, "#9c179e"], [0.4444444444444444, "#bd3786"], [0.5555555555555556, "#d8576b"], [0.6666666666666666, "#ed7953"], [0.7777777777777778, "#fb9f3a"], [0.8888888888888888, "#fdca26"], [1.0, "#f0f921"]], "type": "histogram2d"}], "histogram2dcontour": [{"colorbar": {"outlinewidth": 0, "ticks": ""}, "colorscale": [[0.0, "#0d0887"], [0.1111111111111111, "#46039f"], [0.2222222222222222, "#7201a8"], [0.3333333333333333, "#9c179e"], [0.4444444444444444, "#bd3786"], [0.5555555555555556, "#d8576b"], [0.6666666666666666, "#ed7953"], [0.7777777777777778, "#fb9f3a"], [0.8888888888888888, "#fdca26"], [1.0, "#f0f921"]], "type": "histogram2dcontour"}], "mesh3d": [{"colorbar": {"outlinewidth": 0, "ticks": ""}, "type": "mesh3d"}], "parcoords": [{"line": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "parcoords"}], "pie": [{"automargin": true, "type": "pie"}], "scatter": [{"marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "scatter"}], "scatter3d": [{"line": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "scatter3d"}], "scattercarpet": [{"marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "scattercarpet"}], "scattergeo": [{"marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "scattergeo"}], "scattergl": [{"marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "scattergl"}], "scattermapbox": [{"marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "scattermapbox"}], "scatterpolar": [{"marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "scatterpolar"}], "scatterpolargl": [{"marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "scatterpolargl"}], "scatterternary": [{"marker": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "type": "scatterternary"}], "surface": [{"colorbar": {"outlinewidth": 0, "ticks": ""}, "colorscale": [[0.0, "#0d0887"], [0.1111111111111111, "#46039f"], [0.2222222222222222, "#7201a8"], [0.3333333333333333, "#9c179e"], [0.4444444444444444, "#bd3786"], [0.5555555555555556, "#d8576b"], [0.6666666666666666, "#ed7953"], [0.7777777777777778, "#fb9f3a"], [0.8888888888888888, "#fdca26"], [1.0, "#f0f921"]], "type": "surface"}], "table": [{"cells": {"fill": {"color": "#EBF0F8"}, "line": {"color": "white"}}, "header": {"fill": {"color": "#C8D4E3"}, "line": {"color": "white"}}, "type": "table"}]}, "layout": {"annotationdefaults": {"arrowcolor": "#2a3f5f", "arrowhead": 0, "arrowwidth": 1}, "coloraxis": {"colorbar": {"outlinewidth": 0, "ticks": ""}}, "colorscale": {"diverging": [[0, "#8e0152"], [0.1, "#c51b7d"], [0.2, "#de77ae"], [0.3, "#f1b6da"], [0.4, "#fde0ef"], [0.5, "#f7f7f7"], [0.6, "#e6f5d0"], [0.7, "#b8e186"], [0.8, "#7fbc41"], [0.9, "#4d9221"], [1, "#276419"]], "sequential": [[0.0, "#0d0887"], [0.1111111111111111, "#46039f"], [0.2222222222222222, "#7201a8"], [0.3333333333333333, "#9c179e"], [0.4444444444444444, "#bd3786"], [0.5555555555555556, "#d8576b"], [0.6666666666666666, "#ed7953"], [0.7777777777777778, "#fb9f3a"], [0.8888888888888888, "#fdca26"], [1.0, "#f0f921"]], "sequentialminus": [[0.0, "#0d0887"], [0.1111111111111111, "#46039f"], [0.2222222222222222, "#7201a8"], [0.3333333333333333, "#9c179e"], [0.4444444444444444, "#bd3786"], [0.5555555555555556, "#d8576b"], [0.6666666666666666, "#ed7953"], [0.7777777777777778, "#fb9f3a"], [0.8888888888888888, "#fdca26"], [1.0, "#f0f921"]]}, "colorway": ["#636efa", "#EF553B", "#00cc96", "#ab63fa", "#FFA15A", "#19d3f3", "#FF6692", "#B6E880", "#FF97FF", "#FECB52"], "font": {"color": "#2a3f5f"}, "geo": {"bgcolor": "white", "lakecolor": "white", "landcolor": "#E5ECF6", "showlakes": true, "showland": true, "subunitcolor": "white"}, "hoverlabel": {"align": "left"}, "hovermode": "closest", "mapbox": {"style": "light"}, "paper_bgcolor": "white", "plot_bgcolor": "#E5ECF6", "polar": {"angularaxis": {"gridcolor": "white", "linecolor": "white", "ticks": ""}, "bgcolor": "#E5ECF6", "radialaxis": {"gridcolor": "white", "linecolor": "white", "ticks": ""}}, "scene": {"xaxis": {"backgroundcolor": "#E5ECF6", "gridcolor": "white", "gridwidth": 2, "linecolor": "white", "showbackground": true, "ticks": "", "zerolinecolor": "white"}, "yaxis": {"backgroundcolor": "#E5ECF6", "gridcolor": "white", "gridwidth": 2, "linecolor": "white", "showbackground": true, "ticks": "", "zerolinecolor": "white"}, "zaxis": {"backgroundcolor": "#E5ECF6", "gridcolor": "white", "gridwidth": 2, "linecolor": "white", "showbackground": true, "ticks": "", "zerolinecolor": "white"}}, "shapedefaults": {"line": {"color": "#2a3f5f"}}, "ternary": {"aaxis": {"gridcolor": "white", "linecolor": "white", "ticks": ""}, "baxis": {"gridcolor": "white", "linecolor": "white", "ticks": ""}, "bgcolor": "#E5ECF6", "caxis": {"gridcolor": "white", "linecolor": "white", "ticks": ""}}, "title": {"x": 0.05}, "xaxis": {"automargin": true, "gridcolor": "white", "linecolor": "white", "ticks": "", "title": {"standoff": 15}, "zerolinecolor": "white", "zerolinewidth": 2}, "yaxis": {"automargin": true, "gridcolor": "white", "linecolor": "white", "ticks": "", "title": {"standoff": 15}, "zerolinecolor": "white", "zerolinewidth": 2}}}, "title": {"text": "Ndgc @ 10"}, "xaxis": {"anchor": "y", "domain": [0.0, 1.0], "title": {"text": "query_model"}}, "yaxis": {"anchor": "x", "domain": [0.0, 1.0], "title": {"text": "value"}}},
+                        {"responsive": true}
+                    ).then(function(){
+                            
+var gd = document.getElementById('aec666e5-ae94-4e42-b6cb-4487ba2c26b8');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })
+                };
+                });
+            </script>
+        </div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="thigm85/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/search/cord19/vespa/pyvespa/2020/11/05/cord19-connect-evaluate.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal blog.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/thigm85" title="thigm85"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Thiagogm" title="Thiagogm"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
