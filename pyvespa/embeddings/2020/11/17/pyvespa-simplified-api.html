@@ -679,14 +679,18 @@ window.onload = wrap_img;
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># term-based matching</span>
 <span class="n">query_model</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span>
-    <span class="n">query_properties</span><span class="o">=</span><span class="p">[</span><span class="n">QueryRankingFeature</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"tensor_bert"</span><span class="p">,</span> <span class="n">mapping</span><span class="o">=</span><span class="n">create_embedding</span><span class="p">)]</span>
+    <span class="n">query_properties</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">QueryRankingFeature</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"tensor_bert"</span><span class="p">,</span> <span class="n">mapping</span><span class="o">=</span><span class="n">create_embedding</span><span class="p">)</span>
+    <span class="p">],</span>
     <span class="n">match_phase</span><span class="o">=</span><span class="n">OR</span><span class="p">(),</span> 
     <span class="n">rank_profile</span><span class="o">=</span><span class="n">Ranking</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"default"</span><span class="p">)</span>
 <span class="p">)</span>
 
 <span class="c1"># embedding-based matching</span>
 <span class="n">query_model</span> <span class="o">=</span> <span class="n">Query</span><span class="p">(</span>
-    <span class="n">query_properties</span><span class="o">=</span><span class="p">[</span><span class="n">QueryRankingFeature</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"tensor_bert"</span><span class="p">,</span> <span class="n">mapping</span><span class="o">=</span><span class="n">create_embedding</span><span class="p">)]</span>    
+    <span class="n">query_properties</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">QueryRankingFeature</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"tensor_bert"</span><span class="p">,</span> <span class="n">mapping</span><span class="o">=</span><span class="n">create_embedding</span><span class="p">)</span>
+    <span class="p">],</span>    
     <span class="n">match_phase</span><span class="o">=</span><span class="n">ANN</span><span class="p">(</span>
         <span class="n">doc_vector</span><span class="o">=</span><span class="s2">"title_bert"</span><span class="p">,</span> 
         <span class="n">query_vector</span><span class="o">=</span><span class="s2">"tensor_bert"</span><span class="p">,</span> 
