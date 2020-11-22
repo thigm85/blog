@@ -173,18 +173,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>While experimenting with embeddings in pyvespa, I noticed that I could make significant improvements on the pyvespa API:</p>
-<ul>
-<li>
-<p>Simplify the API for the most common and basic usage (one <code>default</code> schema, one <code>default</code> query profile with <code>root</code> query profile type) while making it easy to configure more complex usage (multiple schemas, for example).</p>
-</li>
-<li>
-<p>Create a unified approach to define and use embeddings in the applications.</p>
-</li>
-<li>
-<p>Expose similar functionality to Applications not defined by the <code>pyvespa</code> API.</p>
-</li>
-</ul>
+<p>While experimenting with embeddings in pyvespa, I noticed that I could make significant improvements on the pyvespa API.</p>
 
 </div>
 </div>
@@ -195,6 +184,16 @@ window.onload = wrap_img;
 <h2 id="Simpler-API">
 <a class="anchor" href="#Simpler-API" aria-hidden="true"><span class="octicon octicon-link"></span></a>Simpler API<a class="anchor-link" href="#Simpler-API"> </a>
 </h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Simplify the API for the most common and basic usage (one <code>default</code> schema, one <code>default</code> query profile with <code>root</code> query profile type) while making it easy to configure more complex usage (multiple schemas, for example).</li>
+</ul>
+
 </div>
 </div>
 </div>
@@ -322,7 +321,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Example of what we want to accomplish:</p>
+<p>To support embeddings we need to enable the creation of query profile and query profile types. Example of what we want to accomplish:</p>
 
 </div>
 </div>
@@ -429,7 +428,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><strong>Simplified API</strong>:</p>
+<p><strong>Simplified API</strong>: Assuming <code>default</code> query profile and <code>root</code> query profile type.</p>
 
 </div>
 </div>
@@ -540,7 +539,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>It is annoying the need to specify <code>{"values": [...]}</code> for indexed tensors:</p>
+<p>It is annoying the need to specify <code>{"values": [...]}</code> for indexed tensors, but this is the user's responsability for now.</p>
 
 </div>
 </div>
@@ -577,6 +576,16 @@ window.onload = wrap_img;
 <h3 id="Using-embeddings-on-queries">
 <a class="anchor" href="#Using-embeddings-on-queries" aria-hidden="true"><span class="octicon octicon-link"></span></a>Using embeddings on queries<a class="anchor-link" href="#Using-embeddings-on-queries"> </a>
 </h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Here I propose a unified approach to define and use embeddings in the applications.</li>
+</ul>
+
 </div>
 </div>
 </div>
@@ -656,7 +665,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>I think we should unify those two approaches by moving the embedding creation to the <code>Query</code> model.</p>
+<p>I think we should unify those two approaches by moving the embedding creation to the <code>Query</code> model. Besides unifying usage, this makes sense because the embedding used is actually part of the query model. Changing the embedding function actually defines a different query model.</p>
 
 </div>
 </div>
