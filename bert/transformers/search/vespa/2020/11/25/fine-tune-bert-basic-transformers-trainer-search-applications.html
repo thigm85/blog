@@ -163,6 +163,8 @@ window.onload = wrap_img;
 
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#The-search-use-case">The search use case </a></li>
+<li class="toc-entry toc-h2"><a href="#Training-and-serving-compatibility">Training and serving compatibility </a></li>
 <li class="toc-entry toc-h2"><a href="#Create-independent-BERT-encodings">Create independent BERT encodings </a></li>
 <li class="toc-entry toc-h2"><a href="#Conclusion">Conclusion </a></li>
 </ul><!--
@@ -192,6 +194,15 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="The-search-use-case">
+<a class="anchor" href="#The-search-use-case" aria-hidden="true"><span class="octicon octicon-link"></span></a>The search use case<a class="anchor-link" href="#The-search-use-case"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <p>Search applications are one example. They involve a large collection of documents that can be pre-processed and stored before a search action is required. On the other hand, a query triggers a search action, and we can only process it in real-time. Search apps’ goal is to return the most relevant documents to the query as quickly as possible. By applying the tokenizer to the documents as soon as we feed them to the application, we only need to tokenize the query when a search action is required, saving us precious time.</p>
 
 </div>
@@ -202,6 +213,15 @@ window.onload = wrap_img;
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>In addition to applying the tokenizer at different times, you also want to retain adequate control about encoding your pair of sentences. For search, you might want to have a joint input vector of length 128 where the query, which is usually smaller than the document, contributes with 32 tokens while the document can take up to 96 tokens.</p>
 
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Training-and-serving-compatibility">
+<a class="anchor" href="#Training-and-serving-compatibility" aria-hidden="true"><span class="octicon octicon-link"></span></a>Training and serving compatibility<a class="anchor-link" href="#Training-and-serving-compatibility"> </a>
+</h2>
 </div>
 </div>
 </div>
