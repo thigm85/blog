@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Semantic search with embedding representation from python | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Semantic search with embedding representation from python" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Build and interact with a MS MARCO search application" />
+<meta property="og:description" content="Build and interact with a MS MARCO search application" />
+<link rel="canonical" href="https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-12-04T00:00:00-06:00" />
+<script type="application/ld+json">
+{"datePublished":"2020-12-04T00:00:00-06:00","dateModified":"2020-12-04T00:00:00-06:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html"},"description":"Build and interact with a MS MARCO search application","@type":"BlogPosting","url":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html","headline":"Semantic search with embedding representation from python","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Semantic search with embedding representation from python | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Semantic search with embedding representation from python" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Build and interact with a MS MARCO search application" />
+<meta property="og:description" content="Build and interact with a MS MARCO search application" />
+<link rel="canonical" href="https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2020-12-04T00:00:00-06:00" />
+<script type="application/ld+json">
+{"datePublished":"2020-12-04T00:00:00-06:00","dateModified":"2020-12-04T00:00:00-06:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html"},"description":"Build and interact with a MS MARCO search application","@type":"BlogPosting","url":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html","headline":"Semantic search with embedding representation from python","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Thiago G. Martins</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Semantic search with embedding representation from python</h1><p class="page-description">Build and interact with a MS MARCO search application</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2020-12-04T00:00:00-06:00" itemprop="datePublished">
+        Dec 4, 2020
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      1 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#MS MARCO">MS MARCO</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#vespa">vespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#pyvespa">pyvespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#semantic search">semantic search</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#text search">text search</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#search">search</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/thigm85/blog/tree/master/_notebooks/2020-12-04-semantic-search-embedding-representation.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/thigm85/blog/blob/master/_notebooks/2020-12-04-semantic-search-embedding-representation.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Define-the-application">Define the application </a></li>
+<li class="toc-entry toc-h2"><a href="#Deploy-the-application">Deploy the application </a></li>
+<li class="toc-entry toc-h2"><a href="#Load-the-BERT-model">Load the BERT model </a></li>
+<li class="toc-entry toc-h2"><a href="#Feed-data">Feed data </a></li>
+<li class="toc-entry toc-h2"><a href="#Define-a-query-model">Define a query model </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2020-12-04-semantic-search-embedding-representation.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pip install <span class="nv">pyvespa</span><span class="o">=</span><span class="m">0</span>.2.0
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Define-the-application">
+<a class="anchor" href="#Define-the-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define the application<a class="anchor-link" href="#Define-the-application"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">ApplicationPackage</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">QueryTypeField</span><span class="p">,</span> <span class="n">RankProfile</span>
+
+<span class="n">app_package</span> <span class="o">=</span> <span class="n">ApplicationPackage</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"msmarco"</span><span class="p">)</span>
+
+<span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>        
+    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"id"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">]),</span>
+    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"title"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span><span class="p">),</span>
+    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"title_bert"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"tensor&lt;float&gt;(x[768])"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">])</span>        
+<span class="p">)</span>
+<span class="n">app_package</span><span class="o">.</span><span class="n">query_profile_type</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>        
+    <span class="n">QueryTypeField</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"ranking.features.query(title_bert)"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">"tensor&lt;float&gt;(x[768])"</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_rank_profile</span><span class="p">(</span>
+    <span class="n">RankProfile</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"bert_title"</span><span class="p">,</span> 
+        <span class="n">first_phase</span> <span class="o">=</span> <span class="s2">"sum(query(title_bert)*attribute(title_bert))"</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Deploy-the-application">
+<a class="anchor" href="#Deploy-the-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deploy the application<a class="anchor-link" href="#Deploy-the-application"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">VespaDocker</span>
+
+<span class="n">vespa_docker</span> <span class="o">=</span> <span class="n">VespaDocker</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">8089</span><span class="p">)</span>
+
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">"WORK_DIR"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"/Users/tmartins"</span>
+<span class="n">disk_folder</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">"WORK_DIR"</span><span class="p">),</span> <span class="s2">"sample_application"</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">vespa_docker</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
+    <span class="n">application_package</span> <span class="o">=</span> <span class="n">app_package</span><span class="p">,</span>
+    <span class="n">disk_folder</span><span class="o">=</span><span class="n">disk_folder</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for application status.
+Waiting for application status.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Load-the-BERT-model">
+<a class="anchor" href="#Load-the-BERT-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Load the BERT model<a class="anchor-link" href="#Load-the-BERT-model"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Loading one of the many models available.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sentence_transformers</span> <span class="kn">import</span> <span class="n">SentenceTransformer</span>
+
+<span class="n">bert_model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">"distilbert-base-nli-stsb-mean-tokens"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Define a function that take a text as input and return a vector of floats as output.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">normalized_bert_encoder</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+    <span class="n">vector</span> <span class="o">=</span> <span class="n">bert_model</span><span class="o">.</span><span class="n">encode</span><span class="p">([</span><span class="n">text</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vector</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">norm</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="n">vector</span> <span class="o">=</span> <span class="n">vector</span> <span class="o">/</span> <span class="n">norm</span>
+    <span class="k">return</span> <span class="n">vector</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Feed-data">
+<a class="anchor" href="#Feed-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feed data<a class="anchor-link" href="#Feed-data"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">read_csv</span>
+
+<span class="n">docs</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="s2">"https://thigm85.github.io/data/msmarco/docs_100.tsv"</span><span class="p">,</span> <span class="n">sep</span> <span class="o">=</span> <span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">docs</span> <span class="o">=</span> <span class="n">docs</span><span class="p">[</span><span class="n">docs</span><span class="p">[</span><span class="s1">'title'</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)]</span> <span class="c1"># remove empty titles</span>
+<span class="n">docs</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(88, 3)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">docs</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>title</th>
+      <th>body</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>D2185715</td>
+      <td>What Is an Appropriate Gift for a Bris</td>
+      <td>Hub Pages   Religion and Philosophy   Judaism...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>D2819479</td>
+      <td>lunge</td>
+      <td>1lungenoun   ˈlənj  Popularity  Bottom 40  of...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">docs</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">feed_data_point</span><span class="p">(</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="s2">"msmarco"</span><span class="p">,</span>
+        <span class="n">data_id</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"id"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span>
+            <span class="s2">"title"</span><span class="p">:</span> <span class="n">row</span><span class="p">[</span><span class="s2">"title"</span><span class="p">],</span>
+            <span class="s2">"title_bert"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"values"</span><span class="p">:</span> <span class="n">normalized_bert_encoder</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"title"</span><span class="p">])}</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Define-a-query-model">
+<a class="anchor" href="#Define-a-query-model" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define a query model<a class="anchor-link" href="#Define-a-query-model"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.query</span> <span class="kn">import</span> <span class="n">QueryModel</span><span class="p">,</span> <span class="n">QueryRankingFeature</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">WeakAnd</span><span class="p">,</span> <span class="n">ANN</span><span class="p">,</span> <span class="n">RankProfile</span>
+
+<span class="n">query_model</span> <span class="o">=</span> <span class="n">QueryModel</span><span class="p">(</span>
+    <span class="n">query_properties</span><span class="o">=</span><span class="p">[</span><span class="n">QueryRankingFeature</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"title_bert"</span><span class="p">,</span> <span class="n">mapping</span><span class="o">=</span><span class="n">normalized_bert_encoder</span><span class="p">)],</span>
+    <span class="n">match_phase</span><span class="o">=</span><span class="n">Union</span><span class="p">(</span>
+        <span class="n">WeakAnd</span><span class="p">(</span><span class="n">field</span><span class="o">=</span><span class="s2">"title"</span><span class="p">,</span> <span class="n">hits</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span> 
+        <span class="n">ANN</span><span class="p">(</span>
+            <span class="n">doc_vector</span><span class="o">=</span><span class="s2">"title_bert"</span><span class="p">,</span> 
+            <span class="n">query_vector</span><span class="o">=</span><span class="s2">"title_bert"</span><span class="p">,</span> 
+            <span class="n">hits</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> 
+            <span class="n">label</span><span class="o">=</span><span class="s2">"ann_title"</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+    <span class="n">rank_profile</span><span class="o">=</span><span class="n">RankProfile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"bert_title"</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>At this point we can query our application:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_results</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">query</span><span class="o">=</span><span class="s2">"What is science?"</span><span class="p">,</span> <span class="n">query_model</span><span class="o">=</span><span class="n">query_model</span><span class="p">,</span> <span class="n">debug_request</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_results</span><span class="o">.</span><span class="n">hits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'id': 'id:msmarco:msmarco::D2089371',
+ 'relevance': 0.6983165740966797,
+ 'source': 'msmarco_content',
+ 'fields': {'sddocname': 'msmarco',
+  'documentid': 'id:msmarco:msmarco::D2089371',
+  'id': 'D2089371',
+  'title': 'Inquiry Science'}}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="thigm85/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal blog.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/thigm85" title="thigm85"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Thiagogm" title="Thiagogm"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
