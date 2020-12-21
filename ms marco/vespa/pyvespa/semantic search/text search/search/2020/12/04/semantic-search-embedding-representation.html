@@ -15,7 +15,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-12-04T00:00:00-06:00" />
 <script type="application/ld+json">
-{"datePublished":"2020-12-04T00:00:00-06:00","dateModified":"2020-12-04T00:00:00-06:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html"},"description":"Build and interact with a MS MARCO search application","@type":"BlogPosting","url":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html","headline":"Semantic search with embedding representation from python","@context":"https://schema.org"}</script>
+{"description":"Build and interact with a MS MARCO search application","@type":"BlogPosting","headline":"Semantic search with embedding representation from python","dateModified":"2020-12-04T00:00:00-06:00","datePublished":"2020-12-04T00:00:00-06:00","url":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html"},"@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
 
@@ -36,7 +36,7 @@
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2020-12-04T00:00:00-06:00" />
 <script type="application/ld+json">
-{"datePublished":"2020-12-04T00:00:00-06:00","dateModified":"2020-12-04T00:00:00-06:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html"},"description":"Build and interact with a MS MARCO search application","@type":"BlogPosting","url":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html","headline":"Semantic search with embedding representation from python","@context":"https://schema.org"}</script>
+{"description":"Build and interact with a MS MARCO search application","@type":"BlogPosting","headline":"Semantic search with embedding representation from python","dateModified":"2020-12-04T00:00:00-06:00","datePublished":"2020-12-04T00:00:00-06:00","url":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/ms%20marco/vespa/pyvespa/semantic%20search/text%20search/search/2020/12/04/semantic-search-embedding-representation.html"},"@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
 <link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
@@ -136,7 +136,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      1 min read
+      3 min read
     
 </span></p>
 
@@ -185,6 +185,7 @@ window.onload = wrap_img;
 
   <div class="post-content e-content" itemprop="articleBody">
     <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Install-pyvespa">Install pyvespa </a></li>
 <li class="toc-entry toc-h2"><a href="#Define-the-application">Define the application </a></li>
 <li class="toc-entry toc-h2"><a href="#Deploy-the-application">Deploy the application </a></li>
 <li class="toc-entry toc-h2"><a href="#Load-the-BERT-model">Load the BERT model </a></li>
@@ -206,29 +207,11 @@ window.onload = wrap_img;
 </div>
     
 
-    
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>pip install <span class="nv">pyvespa</span><span class="o">==</span><span class="m">0</span>.2.0
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-    
-
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Define-the-application">
-<a class="anchor" href="#Define-the-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define the application<a class="anchor-link" href="#Define-the-application"> </a>
-</h2>
+<p>After the release of version 0.2.0 for <a href="https://pyvespa.readthedocs.io/en/latest/index.html">pyvespa</a>, we can now create a semantic search application based on embedding representation from python with just a few lines of code:</p>
+
 </div>
 </div>
 </div>
@@ -244,16 +227,203 @@ window.onload = wrap_img;
 <span class="n">app_package</span> <span class="o">=</span> <span class="n">ApplicationPackage</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"msmarco"</span><span class="p">)</span>
 
 <span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>        
-    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"id"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">]),</span>
-    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"title"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span><span class="p">),</span>
-    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"title_bert"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"tensor&lt;float&gt;(x[768])"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">])</span>        
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"id"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> 
+        <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"title"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> 
+        <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> 
+        <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span>
+    <span class="p">),</span>
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"title_bert"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"tensor&lt;float&gt;(x[768])"</span><span class="p">,</span> 
+        <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">]</span>
+    <span class="p">)</span>        
 <span class="p">)</span>
+
 <span class="n">app_package</span><span class="o">.</span><span class="n">query_profile_type</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>        
     <span class="n">QueryTypeField</span><span class="p">(</span>
         <span class="n">name</span><span class="o">=</span><span class="s2">"ranking.features.query(title_bert)"</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="s2">"tensor&lt;float&gt;(x[768])"</span>
     <span class="p">)</span>
 <span class="p">)</span>
+
+<span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_rank_profile</span><span class="p">(</span>
+    <span class="n">RankProfile</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"bert_title"</span><span class="p">,</span> 
+        <span class="n">first_phase</span> <span class="o">=</span> <span class="s2">"sum(query(title_bert)*attribute(title_bert))"</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will cover the step-by-step of the code block in the next sections. The goal of this post is to illustrate the pyvespa API that will enable you to create your own application rather than focusing on how to create an effective application or chosing the best transformers model to use for embedding generation.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Install-pyvespa">
+<a class="anchor" href="#Install-pyvespa" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install pyvespa<a class="anchor-link" href="#Install-pyvespa"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will use version 0.2.0 here, which can be installed via pip</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>pip install pyvespa==0.2.0</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Define-the-application">
+<a class="anchor" href="#Define-the-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define the application<a class="anchor-link" href="#Define-the-application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The first step is to create an application package with the <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html?highlight=ApplicationPackage#vespa.package.ApplicationPackage">ApplicationPackage</a> class. We will name our application <code>msmarco</code> because we will build a full document ranking application based on the MS MARCO dataset.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">ApplicationPackage</span>
+
+<span class="n">app_package</span> <span class="o">=</span> <span class="n">ApplicationPackage</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"msmarco"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will then add three fields to our application. Each document will have an unique <code>id</code>, a <code>title</code> and a 768 dimensional vector named <code>title_bert</code> that will store the title embedding.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">Field</span>
+
+<span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>        
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"id"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> 
+        <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"title"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> 
+        <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> 
+        <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span>
+    <span class="p">),</span>
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"title_bert"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"tensor&lt;float&gt;(x[768])"</span><span class="p">,</span> 
+        <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">]</span>
+    <span class="p">)</span>        
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We need to define a query ranking feature responsible to hold the query embedding at query time.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">QueryTypeField</span>
+
+<span class="n">app_package</span><span class="o">.</span><span class="n">query_profile_type</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>        
+    <span class="n">QueryTypeField</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"ranking.features.query(title_bert)"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">"tensor&lt;float&gt;(x[768])"</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now that we have defined a document and a query embedding in the application, we can use them in a <code>RankProfile</code> to rank the documents matched by the query. In this case we will define a dot-product between the query embedding <code>query(title_bert)</code> and the document embedding <code>attribute(title_bert)</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">RankProfile</span>
+
 <span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_rank_profile</span><span class="p">(</span>
     <span class="n">RankProfile</span><span class="p">(</span>
         <span class="n">name</span> <span class="o">=</span> <span class="s2">"bert_title"</span><span class="p">,</span> 
