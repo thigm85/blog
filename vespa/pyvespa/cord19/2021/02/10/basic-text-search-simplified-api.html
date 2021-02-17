@@ -241,7 +241,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>As an example, we are going to build an application to search through <a href="https://ir.nist.gov/covidSubmit/data.html">CORD19 sample data</a>.</p>
+<p>As an example, we will build an application to search through <a href="https://ir.nist.gov/covidSubmit/data.html">CORD19 sample data</a>.</p>
 
 </div>
 </div>
@@ -309,9 +309,23 @@ window.onload = wrap_img;
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">Field</span>
 
 <span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>
-    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"cord_uid"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">]),</span>
-    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"title"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span><span class="p">),</span>
-    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"abstract"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span><span class="p">)</span>
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"cord_uid"</span><span class="p">,</span> 
+        <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> 
+        <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"title"</span><span class="p">,</span> 
+        <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> 
+        <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> 
+        <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span>
+    <span class="p">),</span>
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"abstract"</span><span class="p">,</span> 
+        <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> 
+        <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> 
+        <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span>
+    <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
 
@@ -330,7 +344,7 @@ window.onload = wrap_img;
 <p><code>cord_uid</code> will store the cord19 document ids, while <code>title</code> and <code>abstract</code> are self explanatory.</p>
 </li>
 <li>
-<p>All the fields in this case are of type <code>string</code>.</p>
+<p>All the fields, in this case, are of type <code>string</code>.</p>
 </li>
 <li>
 <p>Including <code>"index"</code> in the <code>indexing</code> list means that Vespa will create a searchable index for <code>title</code> and <code>abstract</code>. You can read more about which options is available for <code>indexing</code> in the <a href="https://docs.vespa.ai/documentation/reference/schema-reference.html#indexing">Vespa documentation</a>.</p>
@@ -408,7 +422,10 @@ window.onload = wrap_img;
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">RankProfile</span>
 
 <span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_rank_profile</span><span class="p">(</span>
-    <span class="n">RankProfile</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"bm25"</span><span class="p">,</span> <span class="n">first_phase</span> <span class="o">=</span> <span class="s2">"bm25(title) + bm25(abstract)"</span><span class="p">)</span>
+    <span class="n">RankProfile</span><span class="p">(</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">"bm25"</span><span class="p">,</span> 
+        <span class="n">first_phase</span> <span class="o">=</span> <span class="s2">"bm25(title) + bm25(abstract)"</span>
+    <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
 
@@ -431,7 +448,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We have now defined a basic text search app containing relevant fields, a fieldset to group fields together and a rank profile to rank matched documents. It is time to deploy our application. We can locally deploy our <code>app_package</code> using Docker without leaving the notebook, by creating an instance of <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.package.VespaDocker">VespaDocker</a>, as shown below:</p>
+<p>We have now defined a basic text search app containing relevant fields, a fieldset to group fields together, and a rank profile to rank matched documents. It is time to deploy our application. We can locally deploy our <code>app_package</code> using Docker without leaving the notebook, by creating an instance of <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.package.VespaDocker">VespaDocker</a>, as shown below:</p>
 
 </div>
 </div>
@@ -449,7 +466,7 @@ window.onload = wrap_img;
 
 <span class="n">app</span> <span class="o">=</span> <span class="n">vespa_docker</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
     <span class="n">application_package</span> <span class="o">=</span> <span class="n">app_package</span><span class="p">,</span>
-    <span class="n">disk_folder</span><span class="o">=</span><span class="s2">"/Users/username/cord19_app"</span> <span class="c1"># specify your desired absolute path here</span>
+    <span class="n">disk_folder</span><span class="o">=</span><span class="s2">"/Users/username/cord19_app"</span>
 <span class="p">)</span>
 </pre></div>
 
@@ -491,7 +508,7 @@ Waiting for application status.
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>It is important to know that <code>pyvespa</code> simply provides a convenient API to define Vespa application packages from python. <code>vespa_docker.deploy</code> export Vespa configuration files to the <code>disk_folder</code> defined above. Going through those files is a nice way to start learning about Vespa syntax.</p>
+<p>It is important to know that <code>pyvespa</code> simply provides a convenient API to define Vespa application packages from python. <code>vespa_docker.deploy</code> export Vespa configuration files to the <code>disk_folder</code> defined above. Going through those files is an excellent way to start learning about Vespa syntax.</p>
 
 </div>
 </div>
@@ -508,7 +525,7 @@ Waiting for application status.
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Our first action after deploying a Vespa application is usually to feed some data to it. To make it easier to follow we have prepared a <code>DataFrame</code> containing 100 rows and the <code>cord_uid</code>, <code>title</code> and <code>abstract</code> columns required by our schema definition.</p>
+<p>Our first action after deploying a Vespa application is usually to feed some data to it. To make it easier to follow, we have prepared a <code>DataFrame</code> containing 100 rows and the <code>cord_uid</code>, <code>title</code>, and <code>abstract</code> columns required by our schema definition.</p>
 
 </div>
 </div>
@@ -522,7 +539,9 @@ Waiting for application status.
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">read_csv</span>
 
-<span class="n">parsed_feed</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="s2">"https://thigm85.github.io/data/cord19/parsed_feed_100.csv"</span><span class="p">)</span>
+<span class="n">parsed_feed</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">"https://thigm85.github.io/data/cord19/parsed_feed_100.csv"</span>
+<span class="p">)</span>
 </pre></div>
 
     </div>
@@ -666,7 +685,7 @@ Waiting for application status.
 <p>The schema name is by default set to be equal to the application name, which is <code>cord19</code> in this case.</p>
 </li>
 <li>
-<p>When feeding data to Vespa we must have a unique id for each data point. We will use <code>cord_uid</code> here.</p>
+<p>When feeding data to Vespa, we must have a unique id for each data point. We will use <code>cord_uid</code> here.</p>
 </li>
 </ul>
 
@@ -703,7 +722,7 @@ Waiting for application status.
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>You can also inspect the response of each request if desired.</p>
+<p>You can also inspect the response to each request if desired.</p>
 
 </div>
 </div>
@@ -827,10 +846,10 @@ Waiting for application status.
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We can also define the same query as above by using the <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.query.QueryModel">QueryModel</a> abstraction that allow us to specify how we want to match and rank our documents. In this case we defined that we want to:</p>
+<p>We can also define the same query by using the <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.query.QueryModel">QueryModel</a> abstraction that allows us to specify how we want to match and rank our documents. In this case, we defined that we want to:</p>
 <ul>
-<li>match our documents using the <code>OR</code> operator, which match all the documents that share at least one term with the query.</li>
-<li>rank the matched documents using the <code>bm25</code> rank profile that we defined in our application package.</li>
+<li>match our documents using the <code>OR</code> operator, which matches all the documents that share at least one term with the query.</li>
+<li>rank the matched documents using the <code>bm25</code> rank profile defined in our application package.</li>
 </ul>
 
 </div>
@@ -889,7 +908,7 @@ Waiting for application status.
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Using the Vespa Query Language as in our first example gives you the full power and flexibility that Vespa can offer, while the QueryModel abstraction focus in specific use cases and can be more useful for ML experiments, but this is a topic for a future post.</p>
+<p>Using the Vespa Query Language as in our first example gives you the full power and flexibility that Vespa can offer. In contrast, the QueryModel abstraction focuses on specific use cases and can be more useful for ML experiments, but this is a future post topic.</p>
 
 </div>
 </div>
