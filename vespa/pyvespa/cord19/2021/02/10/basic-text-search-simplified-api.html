@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Build a basic text search application from python with Vespa | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Build a basic text search application from python with Vespa" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Introducing pyvespa simplified API. Build Vespa application from python with few lines of code." />
+<meta property="og:description" content="Introducing pyvespa simplified API. Build Vespa application from python with few lines of code." />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/cord19/2021/02/10/basic-text-search-simplified-api.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/cord19/2021/02/10/basic-text-search-simplified-api.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-02-10T00:00:00-06:00" />
+<script type="application/ld+json">
+{"headline":"Build a basic text search application from python with Vespa","dateModified":"2021-02-10T00:00:00-06:00","description":"Introducing pyvespa simplified API. Build Vespa application from python with few lines of code.","datePublished":"2021-02-10T00:00:00-06:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/cord19/2021/02/10/basic-text-search-simplified-api.html"},"url":"https://thigm85.github.io/blog/vespa/pyvespa/cord19/2021/02/10/basic-text-search-simplified-api.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Build a basic text search application from python with Vespa | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Build a basic text search application from python with Vespa" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Introducing pyvespa simplified API. Build Vespa application from python with few lines of code." />
+<meta property="og:description" content="Introducing pyvespa simplified API. Build Vespa application from python with few lines of code." />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/cord19/2021/02/10/basic-text-search-simplified-api.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/cord19/2021/02/10/basic-text-search-simplified-api.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-02-10T00:00:00-06:00" />
+<script type="application/ld+json">
+{"headline":"Build a basic text search application from python with Vespa","dateModified":"2021-02-10T00:00:00-06:00","description":"Introducing pyvespa simplified API. Build Vespa application from python with few lines of code.","datePublished":"2021-02-10T00:00:00-06:00","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/cord19/2021/02/10/basic-text-search-simplified-api.html"},"url":"https://thigm85.github.io/blog/vespa/pyvespa/cord19/2021/02/10/basic-text-search-simplified-api.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Thiago G. Martins</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build a basic text search application from python with Vespa</h1><p class="page-description">Introducing pyvespa simplified API. Build Vespa application from python with few lines of code.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-02-10T00:00:00-06:00" itemprop="datePublished">
+        Feb 10, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#vespa">vespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#pyvespa">pyvespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#cord19">cord19</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Install">Install </a></li>
+<li class="toc-entry toc-h2"><a href="#Define-the-application">Define the application </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Create-an-application-package">Create an application package </a></li>
+<li class="toc-entry toc-h3"><a href="#Add-fields-to-the-Schema">Add fields to the Schema </a></li>
+<li class="toc-entry toc-h3"><a href="#Search-multiple-fields-when-querying">Search multiple fields when querying </a></li>
+<li class="toc-entry toc-h3"><a href="#Define-how-to-rank-the-documents-matched">Define how to rank the documents matched </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Deploy-your-application">Deploy your application </a></li>
+<li class="toc-entry toc-h2"><a href="#Feed-some-data">Feed some data </a></li>
+<li class="toc-entry toc-h2"><a href="#Query-your-application">Query your application </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021-02-10-basic-text-search-simplified-api.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This post will introduce you to the simplified <code>pyvespa</code> API that allows us to build a basic text search application from scratch with just a few code lines from python. Follow-up posts will add layers of complexity by incrementally building on top of the basic app described here.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>pyvespa</code> exposes a subset of <a href="https://vespa.ai/">Vespa</a> API in python. The library’s primary goal is to allow for faster prototyping and facilitate Machine Learning experiments for Vespa applications. I have written about how we can use it to <a href="https://towardsdatascience.com/how-to-connect-and-interact-with-search-applications-from-python-520118139f69">connect and interact with running Vespa applications</a> and <a href="https://towardsdatascience.com/how-to-evaluate-vespa-ranking-functions-from-python-7749650f6e1a">evaluate Vespa ranking functions from python</a>. This time, we focus on building and deploying applications from scratch.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Install">
+<a class="anchor" href="#Install" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install<a class="anchor-link" href="#Install"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The pyvespa simplified API introduced here was released on version <code>0.2.0</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>pip3 install pyvespa&gt;=0.2.0</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Define-the-application">
+<a class="anchor" href="#Define-the-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define the application<a class="anchor-link" href="#Define-the-application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>As an example, we are going to build an application to search through <a href="https://ir.nist.gov/covidSubmit/data.html">CORD19 sample data</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Create-an-application-package">
+<a class="anchor" href="#Create-an-application-package" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create an application package<a class="anchor-link" href="#Create-an-application-package"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The first step is to create a Vespa <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.package.ApplicationPackage">ApplicationPackage</a>:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">ApplicationPackage</span>
+
+<span class="n">app_package</span> <span class="o">=</span> <span class="n">ApplicationPackage</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"cord19"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Add-fields-to-the-Schema">
+<a class="anchor" href="#Add-fields-to-the-Schema" aria-hidden="true"><span class="octicon octicon-link"></span></a>Add fields to the Schema<a class="anchor-link" href="#Add-fields-to-the-Schema"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can then add <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.package.Field">fields</a> to the application's <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.package.Schema">Schema</a> created by default in <code>app_package</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">Field</span>
+
+<span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>
+    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"cord_uid"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"attribute"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">]),</span>
+    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"title"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span><span class="p">),</span>
+    <span class="n">Field</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"abstract"</span><span class="p">,</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"index"</span><span class="p">,</span> <span class="s2">"summary"</span><span class="p">],</span> <span class="n">index</span> <span class="o">=</span> <span class="s2">"enable-bm25"</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>
+<p><code>cord_uid</code> will store the cord19 document ids, while <code>title</code> and <code>abstract</code> are self explanatory.</p>
+</li>
+<li>
+<p>All the fields in this case are of type <code>string</code>.</p>
+</li>
+<li>
+<p>Including <code>"index"</code> in the <code>indexing</code> list means that Vespa will create a searchable index for <code>title</code> and <code>abstract</code>. You can read more about which options is available for <code>indexing</code> in the <a href="https://docs.vespa.ai/documentation/reference/schema-reference.html#indexing">Vespa documentation</a>.</p>
+</li>
+<li>
+<p>Setting <code>index = "enable-bm25"</code> makes Vespa pre-compute quantities to make it fast to compute the bm25 score. We will use BM25 to rank the documents retrieved.</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Search-multiple-fields-when-querying">
+<a class="anchor" href="#Search-multiple-fields-when-querying" aria-hidden="true"><span class="octicon octicon-link"></span></a>Search multiple fields when querying<a class="anchor-link" href="#Search-multiple-fields-when-querying"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.package.FieldSet">Fieldset</a> groups fields together for searching. For example, the <code>default</code> fieldset defined below groups <code>title</code> and <code>abstract</code> together.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">FieldSet</span>
+
+<span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_field_set</span><span class="p">(</span>
+    <span class="n">FieldSet</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"default"</span><span class="p">,</span> <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"title"</span><span class="p">,</span> <span class="s2">"abstract"</span><span class="p">])</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Define-how-to-rank-the-documents-matched">
+<a class="anchor" href="#Define-how-to-rank-the-documents-matched" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define how to rank the documents matched<a class="anchor-link" href="#Define-how-to-rank-the-documents-matched"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can specify how to rank the matched documents by defining a <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.package.RankProfile">RankProfile</a>. In this case, we defined the <code>bm25</code> rank profile that combines that BM25 scores computed over the <code>title</code> and <code>abstract</code> fields.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">RankProfile</span>
+
+<span class="n">app_package</span><span class="o">.</span><span class="n">schema</span><span class="o">.</span><span class="n">add_rank_profile</span><span class="p">(</span>
+    <span class="n">RankProfile</span><span class="p">(</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"bm25"</span><span class="p">,</span> <span class="n">first_phase</span> <span class="o">=</span> <span class="s2">"bm25(title) + bm25(abstract)"</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Deploy-your-application">
+<a class="anchor" href="#Deploy-your-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deploy your application<a class="anchor-link" href="#Deploy-your-application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We have now defined a basic text search app containing relevant fields, a fieldset to group fields together and a rank profile to rank matched documents. It is time to deploy our application. We can locally deploy our <code>app_package</code> using Docker without leaving the notebook, by creating an instance of <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.package.VespaDocker">VespaDocker</a>, as shown below:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">VespaDocker</span>
+
+<span class="n">vespa_docker</span> <span class="o">=</span> <span class="n">VespaDocker</span><span class="p">(</span><span class="n">port</span><span class="o">=</span><span class="mi">8080</span><span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">vespa_docker</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
+    <span class="n">application_package</span> <span class="o">=</span> <span class="n">app_package</span><span class="p">,</span>
+    <span class="n">disk_folder</span><span class="o">=</span><span class="s2">"/Users/username/cord19_app"</span> <span class="c1"># specify your desired absolute path here</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for application status.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>app</code> now holds a <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.application.Vespa">Vespa</a> instance, which we are going to use to interact with our application. Congratulations, you now have a Vespa application up and running.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It is important to know that <code>pyvespa</code> simply provides a convenient API to define Vespa application packages from python. <code>vespa_docker.deploy</code> export Vespa configuration files to the <code>disk_folder</code> defined above. Going through those files is a nice way to start learning about Vespa syntax.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Feed-some-data">
+<a class="anchor" href="#Feed-some-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feed some data<a class="anchor-link" href="#Feed-some-data"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Our first action after deploying a Vespa application is usually to feed some data to it. To make it easier to follow we have prepared a <code>DataFrame</code> containing 100 rows and the <code>cord_uid</code>, <code>title</code> and <code>abstract</code> columns required by our schema definition.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">read_csv</span>
+
+<span class="n">parsed_feed</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="s2">"https://thigm85.github.io/data/cord19/parsed_feed_100.csv"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">parsed_feed</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>cord_uid</th>
+      <th>title</th>
+      <th>abstract</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>ug7v899j</td>
+      <td>Clinical features of culture-proven Mycoplasma...</td>
+      <td>OBJECTIVE: This retrospective chart review des...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>02tnwd4m</td>
+      <td>Nitric oxide: a pro-inflammatory mediator in l...</td>
+      <td>Inflammatory diseases of the respiratory tract...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>ejv2xln0</td>
+      <td>Surfactant protein-D and pulmonary host defense</td>
+      <td>Surfactant protein-D (SP-D) participates in th...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2b73a28n</td>
+      <td>Role of endothelin-1 in lung disease</td>
+      <td>Endothelin-1 (ET-1) is a 21 amino acid peptide...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>9785vg6d</td>
+      <td>Gene expression in epithelial cells in respons...</td>
+      <td>Respiratory syncytial virus (RSV) and pneumoni...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>95</th>
+      <td>63bos83o</td>
+      <td>Global Surveillance of Emerging Influenza Viru...</td>
+      <td>BACKGROUND: Effective influenza surveillance r...</td>
+    </tr>
+    <tr>
+      <th>96</th>
+      <td>hqc7u9w3</td>
+      <td>Transmission Parameters of the 2001 Foot and M...</td>
+      <td>Despite intensive ongoing research, key aspect...</td>
+    </tr>
+    <tr>
+      <th>97</th>
+      <td>87zt7lew</td>
+      <td>Efficient replication of pneumonia virus of mi...</td>
+      <td>Pneumonia virus of mice (PVM; family Paramyxov...</td>
+    </tr>
+    <tr>
+      <th>98</th>
+      <td>wgxt36jv</td>
+      <td>Designing and conducting tabletop exercises to...</td>
+      <td>BACKGROUND: Since 2001, state and local health...</td>
+    </tr>
+    <tr>
+      <th>99</th>
+      <td>qbldmef1</td>
+      <td>Transcript-level annotation of Affymetrix prob...</td>
+      <td>BACKGROUND: The wide use of Affymetrix microar...</td>
+    </tr>
+  </tbody>
+</table>
+<p>100 rows × 3 columns</p>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can then iterate through the <code>DataFrame</code> above and feed each row by using the <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.application.Vespa.feed_data_point">app.feed_data_point</a> method:</p>
+<ul>
+<li>
+<p>The schema name is by default set to be equal to the application name, which is <code>cord19</code> in this case.</p>
+</li>
+<li>
+<p>When feeding data to Vespa we must have a unique id for each data point. We will use <code>cord_uid</code> here.</p>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">parsed_feed</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">"cord_uid"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"cord_uid"</span><span class="p">]),</span>
+        <span class="s2">"title"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"title"</span><span class="p">]),</span>
+        <span class="s2">"abstract"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"abstract"</span><span class="p">])</span>
+    <span class="p">}</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">feed_data_point</span><span class="p">(</span>
+        <span class="n">schema</span> <span class="o">=</span> <span class="s2">"cord19"</span><span class="p">,</span>
+        <span class="n">data_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">"cord_uid"</span><span class="p">]),</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">fields</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can also inspect the response of each request if desired.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'pathId': '/document/v1/cord19/cord19/docid/qbldmef1',
+ 'id': 'id:cord19:cord19::qbldmef1'}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Query-your-application">
+<a class="anchor" href="#Query-your-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Query your application<a class="anchor-link" href="#Query-your-application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With data fed, we can start to query our text search app. We can use the <a href="https://docs.vespa.ai/en/query-language.html">Vespa Query language</a> directly by sending the required parameters to the body argument of the <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.application.Vespa.query">app.query</a> method.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'yql'</span><span class="p">:</span> <span class="s1">'select * from sources * where userQuery();'</span><span class="p">,</span>
+    <span class="s1">'query'</span><span class="p">:</span> <span class="s1">'What is the role of endothelin-1'</span><span class="p">,</span>
+    <span class="s1">'ranking'</span><span class="p">:</span> <span class="s1">'bm25'</span><span class="p">,</span>
+    <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'any'</span><span class="p">,</span>
+    <span class="s1">'presentation.timing'</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="s1">'hits'</span><span class="p">:</span> <span class="mi">3</span>
+<span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="n">query</span><span class="p">)</span>
+<span class="n">res</span><span class="o">.</span><span class="n">hits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'id': 'id:cord19:cord19::2b73a28n',
+ 'relevance': 20.79338929607865,
+ 'source': 'cord19_content',
+ 'fields': {'sddocname': 'cord19',
+  'documentid': 'id:cord19:cord19::2b73a28n',
+  'cord_uid': '2b73a28n',
+  'title': 'Role of endothelin-1 in lung disease',
+  'abstract': 'Endothelin-1 (ET-1) is a 21 amino acid peptide with diverse biological activity that has been implicated in numerous diseases. ET-1 is a potent mitogen regulator of smooth muscle tone, and inflammatory mediator that may play a key role in diseases of the airways, pulmonary circulation, and inflammatory lung diseases, both acute and chronic. This review will focus on the biology of ET-1 and its role in lung disease.'}}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can also define the same query as above by using the <a href="https://pyvespa.readthedocs.io/en/latest/reference-api.html#vespa.query.QueryModel">QueryModel</a> abstraction that allow us to specify how we want to match and rank our documents. In this case we defined that we want to:</p>
+<ul>
+<li>match our documents using the <code>OR</code> operator, which match all the documents that share at least one term with the query.</li>
+<li>rank the matched documents using the <code>bm25</code> rank profile that we defined in our application package.</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.query</span> <span class="kn">import</span> <span class="n">QueryModel</span><span class="p">,</span> <span class="n">RankProfile</span> <span class="k">as</span> <span class="n">Ranking</span><span class="p">,</span> <span class="n">OR</span>
+
+<span class="n">res</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+    <span class="n">query</span><span class="o">=</span><span class="s2">"What is the role of endothelin-1"</span><span class="p">,</span> 
+    <span class="n">query_model</span><span class="o">=</span><span class="n">QueryModel</span><span class="p">(</span>
+        <span class="n">match_phase</span> <span class="o">=</span> <span class="n">OR</span><span class="p">(),</span>
+        <span class="n">rank_profile</span> <span class="o">=</span> <span class="n">Ranking</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"bm25"</span><span class="p">)</span>
+    <span class="p">)</span>
+    
+<span class="p">)</span>
+<span class="n">res</span><span class="o">.</span><span class="n">hits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'id': 'id:cord19:cord19::2b73a28n',
+ 'relevance': 20.79338929607865,
+ 'source': 'cord19_content',
+ 'fields': {'sddocname': 'cord19',
+  'documentid': 'id:cord19:cord19::2b73a28n',
+  'cord_uid': '2b73a28n',
+  'title': 'Role of endothelin-1 in lung disease',
+  'abstract': 'Endothelin-1 (ET-1) is a 21 amino acid peptide with diverse biological activity that has been implicated in numerous diseases. ET-1 is a potent mitogen regulator of smooth muscle tone, and inflammatory mediator that may play a key role in diseases of the airways, pulmonary circulation, and inflammatory lung diseases, both acute and chronic. This review will focus on the biology of ET-1 and its role in lung disease.'}}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Using the Vespa Query Language as in our first example gives you the full power and flexibility that Vespa can offer, while the QueryModel abstraction focus in specific use cases and can be more useful for ML experiments, but this is a topic for a future post.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="thigm85/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/vespa/pyvespa/cord19/2021/02/10/basic-text-search-simplified-api.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal blog.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/thigm85" title="thigm85"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Thiagogm" title="Thiagogm"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
