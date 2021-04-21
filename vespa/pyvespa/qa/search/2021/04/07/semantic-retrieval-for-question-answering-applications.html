@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Build sentence/paragraph level QA application from python with Vespa | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Build sentence/paragraph level QA application from python with Vespa" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Retrieve paragraph and sentence level information with sparse and dense ranking features" />
+<meta property="og:description" content="Retrieve paragraph and sentence level information with sparse and dense ranking features" />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/qa/search/2021/04/07/semantic-retrieval-for-question-answering-applications.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/qa/search/2021/04/07/semantic-retrieval-for-question-answering-applications.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-04-07T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Retrieve paragraph and sentence level information with sparse and dense ranking features","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/qa/search/2021/04/07/semantic-retrieval-for-question-answering-applications.html"},"url":"https://thigm85.github.io/blog/vespa/pyvespa/qa/search/2021/04/07/semantic-retrieval-for-question-answering-applications.html","headline":"Build sentence/paragraph level QA application from python with Vespa","dateModified":"2021-04-07T00:00:00-05:00","datePublished":"2021-04-07T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Build sentence/paragraph level QA application from python with Vespa | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Build sentence/paragraph level QA application from python with Vespa" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Retrieve paragraph and sentence level information with sparse and dense ranking features" />
+<meta property="og:description" content="Retrieve paragraph and sentence level information with sparse and dense ranking features" />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/qa/search/2021/04/07/semantic-retrieval-for-question-answering-applications.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/qa/search/2021/04/07/semantic-retrieval-for-question-answering-applications.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-04-07T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Retrieve paragraph and sentence level information with sparse and dense ranking features","@type":"BlogPosting","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/qa/search/2021/04/07/semantic-retrieval-for-question-answering-applications.html"},"url":"https://thigm85.github.io/blog/vespa/pyvespa/qa/search/2021/04/07/semantic-retrieval-for-question-answering-applications.html","headline":"Build sentence/paragraph level QA application from python with Vespa","dateModified":"2021-04-07T00:00:00-05:00","datePublished":"2021-04-07T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Thiago G. Martins</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build sentence/paragraph level QA application from python with Vespa</h1><p class="page-description">Retrieve paragraph and sentence level information with sparse and dense ranking features</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-04-07T00:00:00-05:00" itemprop="datePublished">
+        Apr 7, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      10 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#vespa">vespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#pyvespa">pyvespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#QA">QA</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#search">search</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#About-the-data">About the data </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Paragraph">Paragraph </a></li>
+<li class="toc-entry toc-h3"><a href="#Questions">Questions </a></li>
+<li class="toc-entry toc-h3"><a href="#Paragraph-sentences">Paragraph sentences </a></li>
+<li class="toc-entry toc-h3"><a href="#Embeddings">Embeddings </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Create-and-deploy-the-application">Create and deploy the application </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Schema-to-hold-context-information">Schema to hold context information </a></li>
+<li class="toc-entry toc-h3"><a href="#Schema-to-hold-sentence-information">Schema to hold sentence information </a></li>
+<li class="toc-entry toc-h3"><a href="#Build-the-application-package">Build the application package </a></li>
+<li class="toc-entry toc-h3"><a href="#Deploy-the-application">Deploy the application </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Feed-the-data">Feed the data </a></li>
+<li class="toc-entry toc-h2"><a href="#Sentence-level-retrieval">Sentence level retrieval </a></li>
+<li class="toc-entry toc-h2"><a href="#Sentence-level-hybrid-retrieval">Sentence level hybrid retrieval </a></li>
+<li class="toc-entry toc-h2"><a href="#Paragraph-level-retrieval">Paragraph level retrieval </a></li>
+<li class="toc-entry toc-h2"><a href="#Conclusion-and-future-work">Conclusion and future work </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021-04-07-semantic-retrieval-for-question-answering-applications.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will walk through the steps necessary to create a question answering (QA) application that can retrieve sentence or paragraph level answers based on a combination of semantic and/or term-based search. We start by discussing the dataset used and the question and sentence embeddings generated for semantic search. We then include the steps necessary to create and deploy a Vespa application to serve the answers. We make all the required data available to feed the application and show how to query for sentence and paragraph level answers based on a combination of semantic and term-based search.</p>
+<p>This tutorial is based on <a href="https://docs.vespa.ai/en/semantic-qa-retrieval.html">earlier work</a> by the Vespa team to reproduce the results of the paper <a href="https://arxiv.org/abs/1907.04780">ReQA: An Evaluation for End-to-End Answer Retrieval Models</a> by Ahmad Et al. using the Stanford Question Answering Dataset (SQuAD) v1.1 dataset.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="About-the-data">
+<a class="anchor" href="#About-the-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>About the data<a class="anchor-link" href="#About-the-data"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We are going to use the Stanford Question Answering Dataset (SQuAD) v1.1 dataset. The data contains paragraphs (denoted here as context), and each paragraph has questions that have answers in the associated paragraph. We have parsed the dataset and organized the data that we will use in this tutorial to make it easier to follow along.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Paragraph">
+<a class="anchor" href="#Paragraph" aria-hidden="true"><span class="octicon octicon-link"></span></a>Paragraph<a class="anchor-link" href="#Paragraph"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
+
+<span class="n">context_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+    <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://data.vespa.oath.cloud/blog/qa/qa_squad_context_data.json"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Each <code>context</code> data point contains a <code>context_id</code> that uniquely identifies a paragraph, a <code>text</code> field holding the paragraph string, and a <code>questions</code> field holding a list of question ids that can be answered from the paragraph text. We also include a <code>dataset</code> field to identify the data source if we want to index more than one dataset in our application.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">context_data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'text': 'Architecturally, the school has a Catholic character. Atop the Main Building\'s gold dome is a golden statue of the Virgin Mary. Immediately in front of the Main Building and facing it, is a copper statue of Christ with arms upraised with the legend "Venite Ad Me Omnes". Next to the Main Building is the Basilica of the Sacred Heart. Immediately behind the basilica is the Grotto, a Marian place of prayer and reflection. It is a replica of the grotto at Lourdes, France where the Virgin Mary reputedly appeared to Saint Bernadette Soubirous in 1858. At the end of the main drive (and in a direct line that connects through 3 statues and the Gold Dome), is a simple, modern stone statue of Mary.',
+ 'dataset': 'squad',
+ 'questions': [0, 1, 2, 3, 4],
+ 'context_id': 0}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Questions">
+<a class="anchor" href="#Questions" aria-hidden="true"><span class="octicon octicon-link"></span></a>Questions<a class="anchor-link" href="#Questions"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>According to the data point above, <code>context_id = 0</code> can be used to answer the questions with <code>id = [0, 1, 2, 3, 4]</code>. We can load the file containing the questions and display those first five questions.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pandas</span> <span class="kn">import</span> <span class="n">read_csv</span>
+
+<span class="c1"># Note that squad_queries.txt has approx. 1 Gb due to the 512-sized question embeddings</span>
+<span class="n">questions</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span>
+    <span class="n">filepath_or_buffer</span><span class="o">=</span><span class="s2">"https://data.vespa.oath.cloud/blog/qa/squad_queries.txt"</span><span class="p">,</span> 
+    <span class="n">sep</span><span class="o">=</span><span class="s2">"</span><span class="se">\t</span><span class="s2">"</span><span class="p">,</span> 
+    <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">"question_id"</span><span class="p">,</span> <span class="s2">"question"</span><span class="p">,</span> <span class="s2">"number_answers"</span><span class="p">,</span> <span class="s2">"embedding"</span><span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">questions</span><span class="p">[[</span><span class="s2">"question_id"</span><span class="p">,</span> <span class="s2">"question"</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>question_id</th>
+      <th>question</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>To whom did the Virgin Mary allegedly appear i...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>What is in front of the Notre Dame Main Building?</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>The Basilica of the Sacred heart at Notre Dame...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>What is the Grotto at Notre Dame?</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>What sits on top of the Main Building at Notre...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Paragraph-sentences">
+<a class="anchor" href="#Paragraph-sentences" aria-hidden="true"><span class="octicon octicon-link"></span></a>Paragraph sentences<a class="anchor-link" href="#Paragraph-sentences"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To build a more accurate application, we can break the paragraphs down into sentences. For example, the first sentence below comes from the paragraph with <code>context_id = 0</code> and can answer the question with <code>question_id = 4</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Note that qa_squad_sentence_data.json has approx. 1 Gb due to the 512-sized sentence embeddings</span>
+<span class="n">sentence_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+    <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://data.vespa.oath.cloud/blog/qa/qa_squad_sentence_data.json"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">{</span><span class="n">k</span><span class="p">:</span><span class="n">sentence_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"text"</span><span class="p">,</span> <span class="s2">"dataset"</span><span class="p">,</span> <span class="s2">"questions"</span><span class="p">,</span> <span class="s2">"context_id"</span><span class="p">]}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'text': "Atop the Main Building's gold dome is a golden statue of the Virgin Mary.",
+ 'dataset': 'squad',
+ 'questions': [4],
+ 'context_id': 0}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Embeddings">
+<a class="anchor" href="#Embeddings" aria-hidden="true"><span class="octicon octicon-link"></span></a>Embeddings<a class="anchor-link" href="#Embeddings"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We want to combine semantic (dense) and term-based (sparse) signals to answer the questions sent to our application. We have generated embeddings for both the questions and the sentences to implement the semantic search, each having size equal to 512.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">questions</span><span class="p">[[</span><span class="s2">"question_id"</span><span class="p">,</span> <span class="s2">"embedding"</span><span class="p">]]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>question_id</th>
+      <th>embedding</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>[-0.025649750605225563, -0.01708591915667057, ...</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sentence_data</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">"sentence_embedding"</span><span class="p">][</span><span class="s2">"values"</span><span class="p">][</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span> <span class="c1"># display the first five elements</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[-0.005731593817472458,
+ 0.007575507741421461,
+ -0.06413306295871735,
+ -0.007967847399413586,
+ -0.06464996933937073]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Here is <a href="https://github.com/vespa-engine/sample-apps/blob/master/semantic-qa-retrieval/bin/convert-to-vespa-squad.py">the script</a> containing the code that we used to generate the sentence and questions embeddings. We used <a href="https://tfhub.dev/google/universal-sentence-encoder">Google's Universal Sentence Encoder</a> at the time but feel free to replace it with embeddings generated by your preferred model.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-and-deploy-the-application">
+<a class="anchor" href="#Create-and-deploy-the-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create and deploy the application<a class="anchor-link" href="#Create-and-deploy-the-application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can now build a sentence-level Question answering application based on the data described above.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Schema-to-hold-context-information">
+<a class="anchor" href="#Schema-to-hold-context-information" aria-hidden="true"><span class="octicon octicon-link"></span></a>Schema to hold context information<a class="anchor-link" href="#Schema-to-hold-context-information"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <code>context</code> schema will have a document containing the four relevant fields described in the data section. We create an index for the <code>text</code> field and use <code>enable-bm25</code> to pre-compute data required to speed up the use of BM25 for ranking. The <code>summary</code> indexing indicates that all the fields will be included in the requested context documents. The <code>attribute</code> indexing store the fields in memory as an attribute for sorting, querying, and grouping.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">Document</span><span class="p">,</span> <span class="n">Field</span>
+
+<span class="n">context_document</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span>
+    <span class="n">fields</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"questions"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">"array&lt;int&gt;"</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="p">[</span><span class="s2">"summary"</span><span class="p">,</span> <span class="s2">"attribute"</span><span class="p">]),</span>
+        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"dataset"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="p">[</span><span class="s2">"summary"</span><span class="p">,</span> <span class="s2">"attribute"</span><span class="p">]),</span>
+        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"context_id"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">"int"</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="p">[</span><span class="s2">"summary"</span><span class="p">,</span> <span class="s2">"attribute"</span><span class="p">]),</span>        
+        <span class="n">Field</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"text"</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="s2">"string"</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="p">[</span><span class="s2">"summary"</span><span class="p">,</span> <span class="s2">"index"</span><span class="p">],</span> <span class="n">index</span><span class="o">=</span><span class="s2">"enable-bm25"</span><span class="p">),</span>                
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The default fieldset means query tokens will be matched against the <code>text</code> field by default. We defined two rank-profiles (<code>bm25</code> and <code>nativeRank</code>) to illustrate that we can define and experiment with as many rank-profiles as we want. You can create different ones using <a href="https://docs.vespa.ai/en/ranking-expressions-features.html">the ranking expressions and features</a> available.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">FieldSet</span><span class="p">,</span> <span class="n">RankProfile</span>
+
+<span class="n">context_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"context"</span><span class="p">,</span>
+    <span class="n">document</span><span class="o">=</span><span class="n">context_document</span><span class="p">,</span> 
+    <span class="n">fieldsets</span><span class="o">=</span><span class="p">[</span><span class="n">FieldSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"default"</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">"text"</span><span class="p">])],</span> 
+    <span class="n">rank_profiles</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">RankProfile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"bm25"</span><span class="p">,</span> <span class="n">inherits</span><span class="o">=</span><span class="s2">"default"</span><span class="p">,</span> <span class="n">first_phase</span><span class="o">=</span><span class="s2">"bm25(text)"</span><span class="p">),</span> 
+        <span class="n">RankProfile</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"nativeRank"</span><span class="p">,</span> <span class="n">inherits</span><span class="o">=</span><span class="s2">"default"</span><span class="p">,</span> <span class="n">first_phase</span><span class="o">=</span><span class="s2">"nativeRank(text)"</span><span class="p">)]</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Schema-to-hold-sentence-information">
+<a class="anchor" href="#Schema-to-hold-sentence-information" aria-hidden="true"><span class="octicon octicon-link"></span></a>Schema to hold sentence information<a class="anchor-link" href="#Schema-to-hold-sentence-information"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The document of the <code>sentence</code> schema will inherit the fields defined in the <code>context</code> document to avoid unnecessary duplication of the same field types. Besides, we add the <code>sentence_embedding</code> field defined to hold a one-dimensional tensor of floats of size 512. We will store the field as an attribute in memory and build an ANN <code>index</code> using the <code>HNSW</code> (hierarchical navigable small world) algorithm. Read <a href="https://blog.vespa.ai/approximate-nearest-neighbor-search-in-vespa-part-1/">this blog post</a> to know more about Vespa’s journey to implement ANN search and the <a href="https://docs.vespa.ai/documentation/approximate-nn-hnsw.html">documentation</a> for more information about the HNSW parameters.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">HNSW</span>
+
+<span class="n">sentence_document</span> <span class="o">=</span> <span class="n">Document</span><span class="p">(</span>
+    <span class="n">inherits</span><span class="o">=</span><span class="s2">"context"</span><span class="p">,</span> 
+    <span class="n">fields</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">Field</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"sentence_embedding"</span><span class="p">,</span> 
+            <span class="nb">type</span><span class="o">=</span><span class="s2">"tensor&lt;float&gt;(x[512])"</span><span class="p">,</span> 
+            <span class="n">indexing</span><span class="o">=</span><span class="p">[</span><span class="s2">"attribute"</span><span class="p">,</span> <span class="s2">"index"</span><span class="p">],</span> 
+            <span class="n">ann</span><span class="o">=</span><span class="n">HNSW</span><span class="p">(</span>
+                <span class="n">distance_metric</span><span class="o">=</span><span class="s2">"euclidean"</span><span class="p">,</span> 
+                <span class="n">max_links_per_node</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> 
+                <span class="n">neighbors_to_explore_at_insert</span><span class="o">=</span><span class="mi">500</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For the <code>sentence</code> schema, we define three rank profiles. The <code>semantic-similarity</code> uses the Vespa <code>closeness</code> ranking feature, which is defined as <code>1/(1 + distance)</code> so that sentences with embeddings closer to the question embedding will be ranked higher than sentences that are far apart. The <code>bm25</code> is an example of a term-based rank profile, and <code>bm25-semantic-similarity</code> combines both term-based and semantic-based signals as an example of a hybrid approach.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sentence_schema</span> <span class="o">=</span> <span class="n">Schema</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"sentence"</span><span class="p">,</span> 
+    <span class="n">document</span><span class="o">=</span><span class="n">sentence_document</span><span class="p">,</span> 
+    <span class="n">fieldsets</span><span class="o">=</span><span class="p">[</span><span class="n">FieldSet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">"default"</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s2">"text"</span><span class="p">])],</span> 
+    <span class="n">rank_profiles</span><span class="o">=</span><span class="p">[</span>
+        <span class="n">RankProfile</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"semantic-similarity"</span><span class="p">,</span> 
+            <span class="n">inherits</span><span class="o">=</span><span class="s2">"default"</span><span class="p">,</span> 
+            <span class="n">first_phase</span><span class="o">=</span><span class="s2">"closeness(sentence_embedding)"</span>
+        <span class="p">),</span>
+        <span class="n">RankProfile</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"bm25"</span><span class="p">,</span> 
+            <span class="n">inherits</span><span class="o">=</span><span class="s2">"default"</span><span class="p">,</span> 
+            <span class="n">first_phase</span><span class="o">=</span><span class="s2">"bm25(text)"</span>
+        <span class="p">),</span>
+        <span class="n">RankProfile</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="s2">"bm25-semantic-similarity"</span><span class="p">,</span> 
+            <span class="n">inherits</span><span class="o">=</span><span class="s2">"default"</span><span class="p">,</span> 
+            <span class="n">first_phase</span><span class="o">=</span><span class="s2">"bm25(text) + closeness(sentence_embedding)"</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Build-the-application-package">
+<a class="anchor" href="#Build-the-application-package" aria-hidden="true"><span class="octicon octicon-link"></span></a>Build the application package<a class="anchor-link" href="#Build-the-application-package"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can now define our <code>qa</code> application by creating an application package with both the <code>context_schema</code> and the <code>sentence_schema</code> that we defined above. In addition, we need to inform Vespa that we plan to send a query ranking feature named <code>query_embedding</code> with the same type that we used to define the <code>sentence_embedding</code> field.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">ApplicationPackage</span><span class="p">,</span> <span class="n">QueryProfile</span><span class="p">,</span> <span class="n">QueryProfileType</span><span class="p">,</span> <span class="n">QueryTypeField</span>
+
+<span class="n">app_package</span> <span class="o">=</span> <span class="n">ApplicationPackage</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"qa"</span><span class="p">,</span> 
+    <span class="n">schema</span><span class="o">=</span><span class="p">[</span><span class="n">context_schema</span><span class="p">,</span> <span class="n">sentence_schema</span><span class="p">],</span> 
+    <span class="n">query_profile</span><span class="o">=</span><span class="n">QueryProfile</span><span class="p">(),</span>
+    <span class="n">query_profile_type</span><span class="o">=</span><span class="n">QueryProfileType</span><span class="p">(</span>
+        <span class="n">fields</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">QueryTypeField</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"ranking.features.query(query_embedding)"</span><span class="p">,</span> 
+                <span class="nb">type</span><span class="o">=</span><span class="s2">"tensor&lt;float&gt;(x[512])"</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Deploy-the-application">
+<a class="anchor" href="#Deploy-the-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deploy the application<a class="anchor-link" href="#Deploy-the-application"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can deploy the <code>app_package</code> in a Docker container (or to <a href="https://cloud.vespa.ai/">Vespa Cloud</a>):</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">VespaDocker</span>
+
+<span class="n">vespa_docker</span> <span class="o">=</span> <span class="n">VespaDocker</span><span class="p">(</span>
+    <span class="n">port</span><span class="o">=</span><span class="mi">8081</span><span class="p">,</span> 
+    <span class="n">container_memory</span><span class="o">=</span><span class="s2">"8G"</span><span class="p">,</span> 
+    <span class="n">disk_folder</span><span class="o">=</span><span class="s2">"/Users/username/qa_app"</span> <span class="c1"># requires absolute path</span>
+<span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">vespa_docker</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">application_package</span><span class="o">=</span><span class="n">app_package</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for application status.
+Waiting for application status.
+Finished deployment.
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Vespa(http://localhost, 8081)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Feed-the-data">
+<a class="anchor" href="#Feed-the-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feed the data<a class="anchor-link" href="#Feed-the-data"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once deployed, we can use the <code>Vespa</code> instance <code>app</code> to interact with the application. We can start by feeding context and sentence data.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">sentence</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">sentence_data</span><span class="p">):</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">feed_data_point</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="s2">"sentence"</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="n">idx</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="n">sentence</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">context</span> <span class="ow">in</span> <span class="n">context_data</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">feed_data_point</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="s2">"context"</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="n">context</span><span class="p">[</span><span class="s2">"context_id"</span><span class="p">],</span> <span class="n">fields</span><span class="o">=</span><span class="n">context</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Sentence-level-retrieval">
+<a class="anchor" href="#Sentence-level-retrieval" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sentence level retrieval<a class="anchor-link" href="#Sentence-level-retrieval"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The query below sends the first question embedding (<code>questions.loc[0, "embedding"]</code>) through the <code>ranking.features.query(query_embedding)</code> parameter and use the <code>nearestNeighbor</code> search operator to retrieve the closest 100 sentences in embedding space using Euclidean distance as configured in the <code>HNSW</code> settings. The sentences returned will be ranked by the <code>semantic-similarity</code> rank profile defined in the <code>sentence</code> schema.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="p">{</span>
+  <span class="s1">'yql'</span><span class="p">:</span> <span class="s1">'select * from sources sentence where ([{"targetNumHits":100}]nearestNeighbor(sentence_embedding,query_embedding));'</span><span class="p">,</span>
+  <span class="s1">'hits'</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+  <span class="s1">'ranking.features.query(query_embedding)'</span><span class="p">:</span> <span class="n">questions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"embedding"</span><span class="p">],</span>
+  <span class="s1">'ranking.profile'</span><span class="p">:</span> <span class="s1">'semantic-similarity'</span> 
+<span class="p">})</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">hits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'id': 'id:sentence:sentence::2',
+ 'relevance': 0.5540203635649571,
+ 'source': 'qa_content',
+ 'fields': {'sddocname': 'sentence',
+  'documentid': 'id:sentence:sentence::2',
+  'questions': [0],
+  'dataset': 'squad',
+  'context_id': 0,
+  'text': 'It is a replica of the grotto at Lourdes, France where the Virgin Mary reputedly appeared to Saint Bernadette Soubirous in 1858.'}}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Sentence-level-hybrid-retrieval">
+<a class="anchor" href="#Sentence-level-hybrid-retrieval" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sentence level hybrid retrieval<a class="anchor-link" href="#Sentence-level-hybrid-retrieval"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In addition to sending the query embedding, we can send the question string (<code>questions.loc[0, "question"]</code>) via the <code>query</code> parameter and use the <code>or</code> operator to retrieve documents that satisfy either the semantic operator <code>nearestNeighbor</code> or the term-based operator <code>userQuery</code>. Choosing <code>type</code> equal <code>any</code> means that the term-based operator will retrieve all the documents that match at least one query token. The retrieved documents will be ranked by the hybrid rank-profile <code>bm25-semantic-similarity</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="p">{</span>
+  <span class="s1">'yql'</span><span class="p">:</span> <span class="s1">'select * from sources sentence  where ([{"targetNumHits":100}]nearestNeighbor(sentence_embedding,query_embedding)) or userQuery();'</span><span class="p">,</span>
+  <span class="s1">'query'</span><span class="p">:</span> <span class="n">questions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"question"</span><span class="p">],</span>
+  <span class="s1">'type'</span><span class="p">:</span> <span class="s1">'any'</span><span class="p">,</span>
+  <span class="s1">'hits'</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+  <span class="s1">'ranking.features.query(query_embedding)'</span><span class="p">:</span> <span class="n">questions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"embedding"</span><span class="p">],</span>
+  <span class="s1">'ranking.profile'</span><span class="p">:</span> <span class="s1">'bm25-semantic-similarity'</span> 
+<span class="p">})</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">hits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'id': 'id:sentence:sentence::2',
+ 'relevance': 44.46252359752296,
+ 'source': 'qa_content',
+ 'fields': {'sddocname': 'sentence',
+  'documentid': 'id:sentence:sentence::2',
+  'questions': [0],
+  'dataset': 'squad',
+  'context_id': 0,
+  'text': 'It is a replica of the grotto at Lourdes, France where the Virgin Mary reputedly appeared to Saint Bernadette Soubirous in 1858.'}}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Paragraph-level-retrieval">
+<a class="anchor" href="#Paragraph-level-retrieval" aria-hidden="true"><span class="octicon octicon-link"></span></a>Paragraph level retrieval<a class="anchor-link" href="#Paragraph-level-retrieval"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For paragraph-level retrieval, we use Vespa's <a href="https://docs.vespa.ai/en/grouping.html">grouping</a> feature to retrieve paragraphs instead of sentences. In the sample query below, we group by <code>context_id</code> and use the paragraph’s max sentence score to represent the paragraph level score. We limit the number of paragraphs returned by 3, and each paragraph contains at most two sentences. We return all the summary features for each sentence. All those configurations can be changed to fit different use cases.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="p">{</span>
+  <span class="s1">'yql'</span><span class="p">:</span> <span class="p">(</span><span class="s1">'select * from sources sentence where ([{"targetNumHits":10000}]nearestNeighbor(sentence_embedding,query_embedding)) |'</span> 
+          <span class="s1">'all(group(context_id) max(3) order(-max(relevance())) each( max(2) each(output(summary())) as(sentences)) as(paragraphs));'</span><span class="p">),</span>
+  <span class="s1">'hits'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+  <span class="s1">'ranking.features.query(query_embedding)'</span><span class="p">:</span> <span class="n">questions</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"embedding"</span><span class="p">],</span>
+  <span class="s1">'ranking.profile'</span><span class="p">:</span> <span class="s1">'sentence-semantic-similarity'</span> 
+<span class="p">})</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">paragraphs</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">json</span><span class="p">[</span><span class="s2">"root"</span><span class="p">][</span><span class="s2">"children"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"children"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">paragraphs</span><span class="p">[</span><span class="s2">"children"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="c1"># top-ranked paragraph</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'id': 'group:long:0',
+ 'relevance': 1.0,
+ 'value': '0',
+ 'children': [{'id': 'hitlist:sentences',
+   'relevance': 1.0,
+   'label': 'sentences',
+   'continuation': {'next': 'BKAAAAABGBEBC'},
+   'children': [{'id': 'id:sentence:sentence::2',
+     'relevance': 0.5540203635649571,
+     'source': 'qa_content',
+     'fields': {'sddocname': 'sentence',
+      'documentid': 'id:sentence:sentence::2',
+      'questions': [0],
+      'dataset': 'squad',
+      'context_id': 0,
+      'text': 'It is a replica of the grotto at Lourdes, France where the Virgin Mary reputedly appeared to Saint Bernadette Soubirous in 1858.'}},
+    {'id': 'id:sentence:sentence::0',
+     'relevance': 0.4668025534074384,
+     'source': 'qa_content',
+     'fields': {'sddocname': 'sentence',
+      'documentid': 'id:sentence:sentence::0',
+      'questions': [4],
+      'dataset': 'squad',
+      'context_id': 0,
+      'text': "Atop the Main Building's gold dome is a golden statue of the Virgin Mary."}}]}]}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">paragraphs</span><span class="p">[</span><span class="s2">"children"</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># second-ranked paragraph</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'id': 'group:long:28',
+ 'relevance': 0.6666666666666666,
+ 'value': '28',
+ 'children': [{'id': 'hitlist:sentences',
+   'relevance': 1.0,
+   'label': 'sentences',
+   'continuation': {'next': 'BKAAABCABGBEBC'},
+   'children': [{'id': 'id:sentence:sentence::188',
+     'relevance': 0.5209270028414069,
+     'source': 'qa_content',
+     'fields': {'sddocname': 'sentence',
+      'documentid': 'id:sentence:sentence::188',
+      'questions': [142],
+      'dataset': 'squad',
+      'context_id': 28,
+      'text': 'The Grotto of Our Lady of Lourdes, which was built in 1896, is a replica of the original in Lourdes, France.'}},
+    {'id': 'id:sentence:sentence::184',
+     'relevance': 0.4590959251360276,
+     'source': 'qa_content',
+     'fields': {'sddocname': 'sentence',
+      'documentid': 'id:sentence:sentence::184',
+      'questions': [140],
+      'dataset': 'squad',
+      'context_id': 28,
+      'text': 'It is built in French Revival style and it is decorated by stained glass windows imported directly from France.'}}]}]}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Conclusion-and-future-work">
+<a class="anchor" href="#Conclusion-and-future-work" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusion and future work<a class="anchor-link" href="#Conclusion-and-future-work"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This work used Google's Universal Sentence Encoder to generate the embeddings. It would be nice to compare evaluation metrics with embeddings generated by the most recent <a href="https://github.com/facebookresearch/DPR">Facebook's Dense Passage Retrieval</a> methodology. This <a href="https://towardsdatascience.com/efficient-open-domain-question-answering-on-vespa-ai-72562121dcd8">Vespa blog post</a> uses DPR to reproduce the state-of-the-art baseline for retrieval-based question-answering systems within a single, scalable production-ready application.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="thigm85/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/vespa/pyvespa/qa/search/2021/04/07/semantic-retrieval-for-question-answering-applications.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal blog.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/thigm85" title="thigm85"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Thiagogm" title="Thiagogm"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
