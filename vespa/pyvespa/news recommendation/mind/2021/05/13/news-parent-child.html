@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Build a News recommendation app from python with Vespa | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Build a News recommendation app from python with Vespa" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Part 3 - Efficient use of click-through rate via parent-child relationship" />
+<meta property="og:description" content="Part 3 - Efficient use of click-through rate via parent-child relationship" />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/news%20recommendation/mind/2021/05/13/news-parent-child.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/news%20recommendation/mind/2021/05/13/news-parent-child.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-05-13T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Part 3 - Efficient use of click-through rate via parent-child relationship","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/news%20recommendation/mind/2021/05/13/news-parent-child.html"},"@type":"BlogPosting","url":"https://thigm85.github.io/blog/vespa/pyvespa/news%20recommendation/mind/2021/05/13/news-parent-child.html","headline":"Build a News recommendation app from python with Vespa","dateModified":"2021-05-13T00:00:00-05:00","datePublished":"2021-05-13T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Build a News recommendation app from python with Vespa | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Build a News recommendation app from python with Vespa" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Part 3 - Efficient use of click-through rate via parent-child relationship" />
+<meta property="og:description" content="Part 3 - Efficient use of click-through rate via parent-child relationship" />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/news%20recommendation/mind/2021/05/13/news-parent-child.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/news%20recommendation/mind/2021/05/13/news-parent-child.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-05-13T00:00:00-05:00" />
+<script type="application/ld+json">
+{"description":"Part 3 - Efficient use of click-through rate via parent-child relationship","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/news%20recommendation/mind/2021/05/13/news-parent-child.html"},"@type":"BlogPosting","url":"https://thigm85.github.io/blog/vespa/pyvespa/news%20recommendation/mind/2021/05/13/news-parent-child.html","headline":"Build a News recommendation app from python with Vespa","dateModified":"2021-05-13T00:00:00-05:00","datePublished":"2021-05-13T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Thiago G. Martins</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Build a News recommendation app from python with Vespa</h1><p class="page-description">Part 3 - Efficient use of click-through rate via parent-child relationship</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-05-13T00:00:00-05:00" itemprop="datePublished">
+        May 13, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#vespa">vespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#pyvespa">pyvespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#news recommendation">news recommendation</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#MIND">MIND</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Setting-up-a-global-category-CTR-document">Setting up a global category CTR document </a></li>
+<li class="toc-entry toc-h2"><a href="#Importing-parent-values-in-child-documents">Importing parent values in child documents </a></li>
+<li class="toc-entry toc-h2"><a href="#Tensor-expressions-in-ranking">Tensor expressions in ranking </a></li>
+<li class="toc-entry toc-h2"><a href="#Deploy">Deploy </a></li>
+<li class="toc-entry toc-h2"><a href="#Feed">Feed </a></li>
+<li class="toc-entry toc-h2"><a href="#Testing-the-new-rank-profile">Testing the new rank-profile </a></li>
+<li class="toc-entry toc-h2"><a href="#Conclusion">Conclusion </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021-05-13-news-parent-child.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This part of the series introduces a new ranking signal: category click-through rate (CTR). The idea is that we can recommend popular content for users that don’t have a click history yet. Rather than just recommending based on articles, we recommend based on categories. However, these global CTR values can often change continuously, so we need an efficient way to update this value for all documents. We’ll do that by introducing parent-child relationships between documents in Vespa. We will also use sparse tensors directly in ranking. This post replicates <a href="https://docs.vespa.ai/en/tutorials/news-7-recommendation-with-parent-child.html">this more detailed Vespa tutorial</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We assume that you have followed the <a href="https://blog.vespa.ai/build-news-recommendation-app-from-python-with-vespa/">part2 of the news recommendation tutorial</a>. Therefore, you should have an <code>app_package</code> variable holding the news app definition and a Docker container named <code>news</code> running the application fed with data from the demo version of the MIND dataset.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Setting-up-a-global-category-CTR-document">
+<a class="anchor" href="#Setting-up-a-global-category-CTR-document" aria-hidden="true"><span class="octicon octicon-link"></span></a>Setting up a global category CTR document<a class="anchor-link" href="#Setting-up-a-global-category-CTR-document"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If we add a <code>category_ctr</code> field in the <code>news</code> document, we would have to update all the sport's documents every time there is a change in the sport's CTR statistic. If we assume that the category CTR will change often, this turns out to be inefficient.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For these cases, Vespa introduced the <a href="https://docs.vespa.ai/en/parent-child.html">parent-child relationship</a>. Parents are global documents, which are automatically distributed to all content nodes. Other documents can reference these parents and “import” values for use in ranking. The benefit is that the global category CTR values only need to be written to one place: the global document.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">Schema</span><span class="p">,</span> <span class="n">Document</span><span class="p">,</span> <span class="n">Field</span>
+
+<span class="n">app_package</span><span class="o">.</span><span class="n">add_schema</span><span class="p">(</span>
+    <span class="n">Schema</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"category_ctr"</span><span class="p">,</span>
+        <span class="n">global_document</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">document</span><span class="o">=</span><span class="n">Document</span><span class="p">(</span>
+            <span class="n">fields</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">Field</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">"ctrs"</span><span class="p">,</span> 
+                    <span class="nb">type</span><span class="o">=</span><span class="s2">"tensor&lt;float&gt;(category</span><span class="si">{}</span><span class="s2">)"</span><span class="p">,</span> 
+                    <span class="n">indexing</span><span class="o">=</span><span class="p">[</span><span class="s2">"attribute"</span><span class="p">],</span> 
+                    <span class="n">attribute</span><span class="o">=</span><span class="p">[</span><span class="s2">"fast-search"</span><span class="p">]</span>
+                <span class="p">),</span> 
+            <span class="p">]</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We implement that by creating a new <code>category_ctr</code> schema and setting <code>global_document=True</code> to indicate that we want Vespa to keep a copy of these documents on all content nodes. Setting a document to be global is required for using it in a parent-child relationship. Note that we use a tensor with a single sparse dimension to hold the <code>ctrs</code> data.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Sparse tensors have strings as dimension addresses rather than a numeric index. More concretely, an example of such a tensor is (using the <a href="https://docs.vespa.ai/en/reference/tensor.html#tensor-literal-form">tensor literal form</a>):</p>
+
+</div>
+</div>
+</div>{
+    {category: entertainment}: 0.2 }, 
+    {category: news}: 0.3 },
+    {category: sports}: 0.5 },
+    {category: travel}: 0.4 },
+    {category: finance}: 0.1 },
+    ...
+}
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This tensor holds all the CTR scores for all the categories. When updating this tensor, we can update individual cells, and we don’t need to update the whole tensor. This operation is called <a href="https://docs.vespa.ai/en/reference/document-json-format.html#tensor-modify">tensor modify</a> and can be helpful when you have large tensors.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Importing-parent-values-in-child-documents">
+<a class="anchor" href="#Importing-parent-values-in-child-documents" aria-hidden="true"><span class="octicon octicon-link"></span></a>Importing parent values in child documents<a class="anchor-link" href="#Importing-parent-values-in-child-documents"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We need to set up two things to use the <code>category_ctr</code> tensor for ranking <code>news</code> documents. We need to reference the parent document (<code>category_ctr</code> in this case) and import the <code>ctrs</code> from the referenced parent document.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">app_package</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s2">"news"</span><span class="p">)</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"category_ctr_ref"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">"reference&lt;category_ctr&gt;"</span><span class="p">,</span>
+        <span class="n">indexing</span><span class="o">=</span><span class="p">[</span><span class="s2">"attribute"</span><span class="p">],</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The field <code>category_ctr_ref</code> is a field of type reference of the <code>category_ctr</code> document type. When feeding this field, Vespa expects the fully qualified document id. For instance, if our global CTR document has the id <code>id:category_ctr:category_ctr::global</code>, that is the value that we need to feed to the <code>category_ctr_ref</code> field. A document can reference many parent documents.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">ImportedField</span>
+
+<span class="n">app_package</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s2">"news"</span><span class="p">)</span><span class="o">.</span><span class="n">add_imported_field</span><span class="p">(</span>
+    <span class="n">ImportedField</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"global_category_ctrs"</span><span class="p">,</span>
+        <span class="n">reference_field</span><span class="o">=</span><span class="s2">"category_ctr_ref"</span><span class="p">,</span>
+        <span class="n">field_to_import</span><span class="o">=</span><span class="s2">"ctrs"</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The imported field defines that we should import the <code>ctrs</code> field from the document referenced in the <code>category_ctr_ref</code> field. We name this as <code>global_category_ctrs</code>, and we can reference this as <code>attribute(global_category_ctrs)</code> during ranking.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Tensor-expressions-in-ranking">
+<a class="anchor" href="#Tensor-expressions-in-ranking" aria-hidden="true"><span class="octicon octicon-link"></span></a>Tensor expressions in ranking<a class="anchor-link" href="#Tensor-expressions-in-ranking"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Each <code>news</code> document has a <code>category</code> field of type <code>string</code> indicating which category the document belongs to. We want to use this information to select the correct CTR score stored in the <code>global_category_ctrs</code>. Unfortunately, tensor expressions only work on tensors, so we need to add a new field of type <code>tensor</code> called <code>category_tensor</code> to hold category information in a way that can be used in a tensor expression:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">app_package</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s2">"news"</span><span class="p">)</span><span class="o">.</span><span class="n">add_fields</span><span class="p">(</span>
+    <span class="n">Field</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"category_tensor"</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="s2">"tensor&lt;float&gt;(category</span><span class="si">{}</span><span class="s2">)"</span><span class="p">,</span>
+        <span class="n">indexing</span><span class="o">=</span><span class="p">[</span><span class="s2">"attribute"</span><span class="p">],</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>With the <code>category_tensor</code> field as defined above, we can use the tensor expression <code>sum(attribute(category_tensor) * attribute(global_category_ctrs))</code> to select the specific CTR related to the category of the document being ranked. We implement this expression as a <code>Function</code> in the rank-profile below:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">app_package</span><span class="o">.</span><span class="n">get_schema</span><span class="p">(</span><span class="s2">"news"</span><span class="p">)</span><span class="o">.</span><span class="n">add_rank_profile</span><span class="p">(</span>
+    <span class="n">RankProfile</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"recommendation_with_global_category_ctr"</span><span class="p">,</span> 
+        <span class="n">inherits</span><span class="o">=</span><span class="s2">"recommendation"</span><span class="p">,</span>
+        <span class="n">functions</span><span class="o">=</span><span class="p">[</span>
+            <span class="n">Function</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"category_ctr"</span><span class="p">,</span> 
+                <span class="n">expression</span><span class="o">=</span><span class="s2">"sum(attribute(category_tensor) * attribute(global_category_ctrs))"</span>
+            <span class="p">),</span>
+            <span class="n">Function</span><span class="p">(</span>
+                <span class="n">name</span><span class="o">=</span><span class="s2">"nearest_neighbor"</span><span class="p">,</span> 
+                <span class="n">expression</span><span class="o">=</span><span class="s2">"closeness(field, embedding)"</span>
+            <span class="p">)</span>
+            
+        <span class="p">],</span>
+        <span class="n">first_phase</span><span class="o">=</span><span class="s2">"nearest_neighbor * category_ctr"</span><span class="p">,</span>
+        <span class="n">summary_features</span><span class="o">=</span><span class="p">[</span>
+            <span class="s2">"attribute(category_tensor)"</span><span class="p">,</span> 
+            <span class="s2">"attribute(global_category_ctrs)"</span><span class="p">,</span> 
+            <span class="s2">"category_ctr"</span><span class="p">,</span> 
+            <span class="s2">"nearest_neighbor"</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the new rank-profile, we have added a first phase ranking expression that multiplies the nearest-neighbor score with the category CTR score, implemented with the functions <code>nearest_neighbor</code> and <code>category_ctr</code>, respectively. As a first attempt, we just multiply the nearest-neighbor with the category CTR score, which might not be the best way to combine those two values.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Deploy">
+<a class="anchor" href="#Deploy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Deploy<a class="anchor-link" href="#Deploy"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can reuse the same container named <code>news</code> created in the first part of this tutorial.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">VespaDocker</span>
+
+<span class="n">vespa_docker</span> <span class="o">=</span> <span class="n">VespaDocker</span><span class="o">.</span><span class="n">from_container_name_or_id</span><span class="p">(</span><span class="s2">"news"</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">vespa_docker</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">application_package</span><span class="o">=</span><span class="n">app_package</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for application status.
+Waiting for application status.
+Finished deployment.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Feed">
+<a class="anchor" href="#Feed" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feed<a class="anchor-link" href="#Feed"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next, we will download the global category CTR data, already parsed in the format that is expected by a sparse tensor with the category dimension.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span><span class="o">,</span> <span class="nn">json</span>
+
+<span class="n">global_category_ctr</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+    <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://data.vespa.oath.cloud/blog/news/global_category_ctr_parsed.json"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="p">)</span>
+<span class="n">global_category_ctr</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'ctrs': {'cells': [{'address': {'category': 'entertainment'},
+    'value': 0.029266420380943244},
+   {'address': {'category': 'autos'}, 'value': 0.028475809103747123},
+   {'address': {'category': 'tv'}, 'value': 0.05374837981352176},
+   {'address': {'category': 'health'}, 'value': 0.03531784305129329},
+   {'address': {'category': 'sports'}, 'value': 0.05611187986670051},
+   {'address': {'category': 'music'}, 'value': 0.05471192953054426},
+   {'address': {'category': 'news'}, 'value': 0.04420778372641991},
+   {'address': {'category': 'foodanddrink'}, 'value': 0.029256852366228187},
+   {'address': {'category': 'travel'}, 'value': 0.025144552013730358},
+   {'address': {'category': 'finance'}, 'value': 0.03231013195899643},
+   {'address': {'category': 'lifestyle'}, 'value': 0.04423279317474416},
+   {'address': {'category': 'video'}, 'value': 0.04006693315980292},
+   {'address': {'category': 'movies'}, 'value': 0.03335647459420146},
+   {'address': {'category': 'weather'}, 'value': 0.04532171803495617},
+   {'address': {'category': 'northamerica'}, 'value': 0.0},
+   {'address': {'category': 'kids'}, 'value': 0.043478260869565216}]}}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can feed this data point to the document defined in the <code>category_ctr</code>. We will assign the <code>global</code> id to this document. Reference to this document can be done by using the Vespa id <code>id:category_ctr:category_ctr::global</code>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">response</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">feed_data_point</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="s2">"category_ctr"</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="s2">"global"</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="n">global_category_ctr</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We need to perform a partial update on the <code>news</code> documents to include information about the reference field <code>category_ctr_ref</code> and the new <code>category_tensor</code> that will have the value <code>1.0</code> for the specific category associated with each document.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">news_category_ctr</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+    <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"https://data.vespa.oath.cloud/blog/news/news_category_ctr_update_parsed.json"</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="p">)</span>
+<span class="n">news_category_ctr</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'id': 'N3112',
+ 'fields': {'category_ctr_ref': 'id:category_ctr:category_ctr::global',
+  'category_tensor': {'cells': [{'address': {'category': 'lifestyle'},
+     'value': 1.0}]}}}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">data_point</span> <span class="ow">in</span> <span class="n">news_category_ctr</span><span class="p">:</span>
+    <span class="n">app</span><span class="o">.</span><span class="n">update_data</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="s2">"news"</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="n">data_point</span><span class="p">[</span><span class="s2">"id"</span><span class="p">],</span> <span class="n">fields</span><span class="o">=</span><span class="n">data_point</span><span class="p">[</span><span class="s2">"fields"</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Testing-the-new-rank-profile">
+<a class="anchor" href="#Testing-the-new-rank-profile" aria-hidden="true"><span class="octicon octicon-link"></span></a>Testing the new rank-profile<a class="anchor-link" href="#Testing-the-new-rank-profile"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will redefine the <code>query_user_embedding</code> function defined in the second part of this tutorial and use it to make a query involving the user <code>U33527</code> and the <code>recommendation_with_global_category_ctr</code> rank-profile.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">parse_embedding</span><span class="p">(</span><span class="n">hit_json</span><span class="p">):</span>
+    <span class="n">embedding_json</span> <span class="o">=</span> <span class="n">hit_json</span><span class="p">[</span><span class="s2">"fields"</span><span class="p">][</span><span class="s2">"embedding"</span><span class="p">][</span><span class="s2">"cells"</span><span class="p">]</span>
+    <span class="n">embedding_vector</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">embedding_json</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">embedding_json</span><span class="p">:</span>
+        <span class="n">embedding_vector</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="s2">"address"</span><span class="p">][</span><span class="s2">"d0"</span><span class="p">])]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="s2">"value"</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">embedding_vector</span>
+
+<span class="k">def</span> <span class="nf">query_user_embedding</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="p">{</span><span class="s2">"yql"</span><span class="p">:</span> <span class="s2">"select * from sources user where user_id contains '</span><span class="si">{}</span><span class="s2">';"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_id</span><span class="p">)})</span>
+    <span class="n">embedding</span> <span class="o">=</span> <span class="n">parse_embedding</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">hits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">embedding</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">yql</span> <span class="o">=</span> <span class="s2">"select * from sources news where "</span> \
+      <span class="s2">"([{'targetHits': 10}]nearestNeighbor(embedding, user_embedding));"</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">app</span><span class="o">.</span><span class="n">query</span><span class="p">(</span>
+    <span class="n">body</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">"yql"</span><span class="p">:</span> <span class="n">yql</span><span class="p">,</span>        
+        <span class="s2">"hits"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+        <span class="s2">"ranking.features.query(user_embedding)"</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">query_user_embedding</span><span class="p">(</span><span class="n">user_id</span><span class="o">=</span><span class="s2">"U33527"</span><span class="p">)),</span>
+        <span class="s2">"ranking.profile"</span><span class="p">:</span> <span class="s2">"recommendation_with_global_category_ctr"</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The first hit below is a sports article. The global CTR document is also listed here, and the CTR score for the sports category is <code>0.0561</code>. Thus, the result of the category_ctr function is <code>0.0561</code> as intended. The nearest_neighbor score is <code>0.149</code>, and the resulting relevance score is <code>0.00836</code>. So, this worked as expected.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">hits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'id': 'id:news:news::N5316',
+ 'relevance': 0.008369192847921151,
+ 'source': 'news_content',
+ 'fields': {'sddocname': 'news',
+  'documentid': 'id:news:news::N5316',
+  'news_id': 'N5316',
+  'category': 'sports',
+  'subcategory': 'football_nfl',
+  'title': "Matthew Stafford's status vs. Bears uncertain, Sam Martin will play",
+  'abstract': "Stafford's start streak could be in jeopardy, according to Ian Rapoport.",
+  'url': "https://www.msn.com/en-us/sports/football_nfl/matthew-stafford's-status-vs.-bears-uncertain,-sam-martin-will-play/ar-BBWwcVN?ocid=chopendata",
+  'date': 20191112,
+  'clicks': 0,
+  'impressions': 1,
+  'summaryfeatures': {'attribute(category_tensor)': {'type': 'tensor&lt;float&gt;(category{})',
+    'cells': [{'address': {'category': 'sports'}, 'value': 1.0}]},
+   'attribute(global_category_ctrs)': {'type': 'tensor&lt;float&gt;(category{})',
+    'cells': [{'address': {'category': 'entertainment'},
+      'value': 0.029266420751810074},
+     {'address': {'category': 'autos'}, 'value': 0.0284758098423481},
+     {'address': {'category': 'tv'}, 'value': 0.05374838039278984},
+     {'address': {'category': 'health'}, 'value': 0.03531784191727638},
+     {'address': {'category': 'sports'}, 'value': 0.05611187964677811},
+     {'address': {'category': 'music'}, 'value': 0.05471193045377731},
+     {'address': {'category': 'news'}, 'value': 0.04420778527855873},
+     {'address': {'category': 'foodanddrink'}, 'value': 0.029256852343678474},
+     {'address': {'category': 'travel'}, 'value': 0.025144552811980247},
+     {'address': {'category': 'finance'}, 'value': 0.032310131937265396},
+     {'address': {'category': 'lifestyle'}, 'value': 0.044232793152332306},
+     {'address': {'category': 'video'}, 'value': 0.040066931396722794},
+     {'address': {'category': 'movies'}, 'value': 0.033356472849845886},
+     {'address': {'category': 'weather'}, 'value': 0.045321717858314514},
+     {'address': {'category': 'northamerica'}, 'value': 0.0},
+     {'address': {'category': 'kids'}, 'value': 0.043478261679410934}]},
+   'rankingExpression(category_ctr)': 0.05611187964677811,
+   'rankingExpression(nearest_neighbor)': 0.14915188666574342,
+   'vespa.summaryFeatures.cached': 0.0}}}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Conclusion">
+<a class="anchor" href="#Conclusion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conclusion<a class="anchor-link" href="#Conclusion"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This tutorial introduced parent-child relationships and demonstrated it through a global CTR feature we used in ranking. We also introduced ranking with (sparse) tensor expressions.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="thigm85/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/vespa/pyvespa/news%20recommendation/mind/2021/05/13/news-parent-child.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal blog.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/thigm85" title="thigm85"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Thiagogm" title="Thiagogm"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
