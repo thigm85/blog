@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Vespa stateless model evaluation | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Vespa stateless model evaluation" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Experimennting with a python API" />
+<meta property="og:description" content="Experimennting with a python API" />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/stateless%20model%20evaluation/huggingface/2021/08/10/stateless-model-api.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/stateless%20model%20evaluation/huggingface/2021/08/10/stateless-model-api.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-08-10T00:00:00-05:00" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/stateless%20model%20evaluation/huggingface/2021/08/10/stateless-model-api.html"},"description":"Experimennting with a python API","@type":"BlogPosting","url":"https://thigm85.github.io/blog/vespa/pyvespa/stateless%20model%20evaluation/huggingface/2021/08/10/stateless-model-api.html","headline":"Vespa stateless model evaluation","dateModified":"2021-08-10T00:00:00-05:00","datePublished":"2021-08-10T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Vespa stateless model evaluation | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Vespa stateless model evaluation" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Experimennting with a python API" />
+<meta property="og:description" content="Experimennting with a python API" />
+<link rel="canonical" href="https://thigm85.github.io/blog/vespa/pyvespa/stateless%20model%20evaluation/huggingface/2021/08/10/stateless-model-api.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/vespa/pyvespa/stateless%20model%20evaluation/huggingface/2021/08/10/stateless-model-api.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2021-08-10T00:00:00-05:00" />
+<script type="application/ld+json">
+{"mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/vespa/pyvespa/stateless%20model%20evaluation/huggingface/2021/08/10/stateless-model-api.html"},"description":"Experimennting with a python API","@type":"BlogPosting","url":"https://thigm85.github.io/blog/vespa/pyvespa/stateless%20model%20evaluation/huggingface/2021/08/10/stateless-model-api.html","headline":"Vespa stateless model evaluation","dateModified":"2021-08-10T00:00:00-05:00","datePublished":"2021-08-10T00:00:00-05:00","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Thiago G. Martins</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Vespa stateless model evaluation</h1><p class="page-description">Experimennting with a python API</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2021-08-10T00:00:00-05:00" itemprop="datePublished">
+        Aug 10, 2021
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      2 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#vespa">vespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#pyvespa">pyvespa</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#stateless model evaluation">stateless model evaluation</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#huggingface">huggingface</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Text-classification-task-with-the-Huggingface-inference-API">Text classification task with the Huggingface inference API </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Hosted-API">Hosted API </a></li>
+<li class="toc-entry toc-h3"><a href="#Local-with-their-python-API">Local with their python API </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Vespa-stateless-model-api---the-bare-minumum">Vespa stateless model api - the bare minumum </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Create-the-application-package-and-deploy">Create the application package and deploy </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Interact-with-the-application-with-Vespa-REST-api">Interact with the application with Vespa REST api </a></li>
+<li class="toc-entry toc-h2"><a href="#Vespa-stateless-model---full-python-api">Vespa stateless model - full python api </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2021-08-10-stateless-model-api.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Text-classification-task-with-the-Huggingface-inference-API">
+<a class="anchor" href="#Text-classification-task-with-the-Huggingface-inference-API" aria-hidden="true"><span class="octicon octicon-link"></span></a>Text classification task with the Huggingface inference API<a class="anchor-link" href="#Text-classification-task-with-the-Huggingface-inference-API"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Hosted-API">
+<a class="anchor" href="#Hosted-API" aria-hidden="true"><span class="octicon octicon-link"></span></a>Hosted API<a class="anchor-link" href="#Hosted-API"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">requests</span>
+
+<span class="n">API_URL</span> <span class="o">=</span> <span class="s2">"https://api-inference.huggingface.co/models/distilbert-base-uncased-finetuned-sst-2-english"</span>
+<span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Authorization"</span><span class="p">:</span> <span class="s2">"Bearer api_mxMKsfJoFDmvPdPziZLGuymSBQMbxVYoWg"</span><span class="p">}</span>
+
+<span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="n">payload</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">API_URL</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">json</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">output</span> <span class="o">=</span> <span class="n">query</span><span class="p">({</span><span class="s2">"inputs"</span><span class="p">:</span> <span class="s2">"This is a test"</span><span class="p">})</span>
+<span class="n">output</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[[{'label': 'NEGATIVE', 'score': 0.9670119881629944},
+  {'label': 'POSITIVE', 'score': 0.032987985759973526}]]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>First time using the API, it returns an error indicating the it is loading the model.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+
+<pre><code>{'error': 'Model distilbert-base-uncased-finetuned-sst-2-english is currently loading',
+ 'estimated_time': 20}</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Local-with-their-python-API">
+<a class="anchor" href="#Local-with-their-python-API" aria-hidden="true"><span class="octicon octicon-link"></span></a>Local with their python API<a class="anchor-link" href="#Local-with-their-python-API"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">transformers</span> <span class="kn">import</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="n">AutoTokenizer</span><span class="p">,</span> <span class="n">AutoModelForSequenceClassification</span>
+
+<span class="n">pipeline</span> <span class="o">=</span> <span class="n">Pipeline</span><span class="p">(</span>
+    <span class="n">tokenizer</span><span class="o">=</span><span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">"distilbert-base-uncased-finetuned-sst-2-english"</span><span class="p">),</span> 
+    <span class="n">model</span><span class="o">=</span><span class="n">AutoModelForSequenceClassification</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span><span class="s2">"distilbert-base-uncased-finetuned-sst-2-english"</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+
+<span class="n">logits</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="s2">"This is a test"</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">[</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="o">/</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="n">math</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">logits</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">logits</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[0.9670119572344816, 0.032988042765518436]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Vespa-stateless-model-api---the-bare-minumum">
+<a class="anchor" href="#Vespa-stateless-model-api---the-bare-minumum" aria-hidden="true"><span class="octicon octicon-link"></span></a>Vespa stateless model api - the bare minumum<a class="anchor-link" href="#Vespa-stateless-model-api---the-bare-minumum"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Create-the-application-package-and-deploy">
+<a class="anchor" href="#Create-the-application-package-and-deploy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create the application package and deploy<a class="anchor-link" href="#Create-the-application-package-and-deploy"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="alert alert-info">
+
+**Note**: The step below assumes you exported a model to ONNX
+</div>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">ModelServer</span>
+
+<span class="n">model_server</span> <span class="o">=</span> <span class="n">ModelServer</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"bert_model_server"</span><span class="p">,</span> 
+    <span class="n">model_file_path</span> <span class="o">=</span> <span class="s2">"data/2021-08-10-stateless-model-api/bert_tiny.onnx"</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Could just as easily deploy to Vespa Cloud:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.deployment</span> <span class="kn">import</span> <span class="n">VespaDocker</span>
+
+<span class="n">disk_folder</span> <span class="o">=</span> <span class="s2">"/Users/tmartins/model_server_docker"</span>
+<span class="n">vespa_docker</span> <span class="o">=</span> <span class="n">VespaDocker</span><span class="p">(</span><span class="n">disk_folder</span><span class="o">=</span><span class="n">disk_folder</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8081</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">vespa_docker</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">application_package</span><span class="o">=</span><span class="n">model_server</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Finished deployment.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Interact-with-the-application-with-Vespa-REST-api">
+<a class="anchor" href="#Interact-with-the-application-with-Vespa-REST-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Interact with the application with Vespa REST api<a class="anchor-link" href="#Interact-with-the-application-with-Vespa-REST-api"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Get the models available</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>curl -s <span class="s1">'http://localhost:8081/model-evaluation/v1/'</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>{"bert_tiny":"http://localhost:8080/model-evaluation/v1/bert_tiny"}</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Get information about a specific model</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>curl -s <span class="s1">'http://localhost:8081/model-evaluation/v1/bert_tiny'</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>{"model":"bert_tiny","functions":[{"function":"output_0","info":"http://localhost:8080/model-evaluation/v1/bert_tiny/output_0","eval":"http://localhost:8080/model-evaluation/v1/bert_tiny/output_0/eval","arguments":[{"name":"input_ids","type":"tensor(d0[],d1[])"},{"name":"attention_mask","type":"tensor(d0[],d1[])"},{"name":"token_type_ids","type":"tensor(d0[],d1[])"}]}]}</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Write custom code to generate url encoded inputs</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="alert alert-info">
+
+**Note**: Writing custom code to get the inputs right is messy and does not allow to improve speed unless the users writes their own custom java searcher.
+</div>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">tokenizer</span> <span class="o">=</span> <span class="n">AutoTokenizer</span><span class="o">.</span><span class="n">from_pretrained</span><span class="p">(</span>
+    <span class="s2">"google/bert_uncased_L-2_H-128_A-2"</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlencode</span>
+
+<span class="k">def</span> <span class="nf">create_url_encoded_input</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">):</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="n">tokenizer</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">encoded_tokens</span> <span class="o">=</span> <span class="n">urlencode</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="n">key</span><span class="p">:</span> <span class="s2">"{"</span>
+            <span class="o">+</span> <span class="s2">","</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span>
+                    <span class="s2">"{{d0: 0, d1: </span><span class="si">{}</span><span class="s2">}}: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="s2">"}"</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">tokens</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">encoded_tokens</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">encoded_tokens</span> <span class="o">=</span> <span class="n">create_url_encoded_input</span><span class="p">(</span><span class="s2">"this is a text"</span><span class="p">,</span> <span class="n">tokenizer</span><span class="p">)</span>
+<span class="n">encoded_tokens</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'input_ids=%7B%7Bd0%3A+0%2C+d1%3A+0%7D%3A+101%2C%7Bd0%3A+0%2C+d1%3A+1%7D%3A+2023%2C%7Bd0%3A+0%2C+d1%3A+2%7D%3A+2003%2C%7Bd0%3A+0%2C+d1%3A+3%7D%3A+1037%2C%7Bd0%3A+0%2C+d1%3A+4%7D%3A+3793%2C%7Bd0%3A+0%2C+d1%3A+5%7D%3A+102%7D&amp;token_type_ids=%7B%7Bd0%3A+0%2C+d1%3A+0%7D%3A+0%2C%7Bd0%3A+0%2C+d1%3A+1%7D%3A+0%2C%7Bd0%3A+0%2C+d1%3A+2%7D%3A+0%2C%7Bd0%3A+0%2C+d1%3A+3%7D%3A+0%2C%7Bd0%3A+0%2C+d1%3A+4%7D%3A+0%2C%7Bd0%3A+0%2C+d1%3A+5%7D%3A+0%7D&amp;attention_mask=%7B%7Bd0%3A+0%2C+d1%3A+0%7D%3A+1%2C%7Bd0%3A+0%2C+d1%3A+1%7D%3A+1%2C%7Bd0%3A+0%2C+d1%3A+2%7D%3A+1%2C%7Bd0%3A+0%2C+d1%3A+3%7D%3A+1%2C%7Bd0%3A+0%2C+d1%3A+4%7D%3A+1%2C%7Bd0%3A+0%2C+d1%3A+5%7D%3A+1%7D'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Use the encoded tokens to get a prediction from Vespa:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">requests</span> <span class="kn">import</span> <span class="n">get</span>
+
+<span class="n">get</span><span class="p">(</span><span class="s2">"http://localhost:8081/model-evaluation/v1/bert_tiny/output_0/eval?</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">encoded_tokens</span><span class="p">))</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'cells': [{'address': {'d0': '0', 'd1': '0'}, 'value': -0.02798202447593212},
+  {'address': {'d0': '0', 'd1': '1'}, 'value': -0.1420438140630722}]}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Clean up the environment</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">disk_folder</span><span class="p">,</span> <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">vespa_docker</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+<span class="n">vespa_docker</span><span class="o">.</span><span class="n">container</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Vespa-stateless-model---full-python-api">
+<a class="anchor" href="#Vespa-stateless-model---full-python-api" aria-hidden="true"><span class="octicon octicon-link"></span></a>Vespa stateless model - full python api<a class="anchor-link" href="#Vespa-stateless-model---full-python-api"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Define the task and the model to use:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.ml</span> <span class="kn">import</span> <span class="n">SequenceClassification</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">SequenceClassification</span><span class="p">(</span>
+    <span class="n">model_id</span><span class="o">=</span><span class="s2">"bert_tiny"</span><span class="p">,</span> 
+    <span class="n">model</span><span class="o">=</span><span class="s2">"google/bert_uncased_L-2_H-128_A-2"</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Create the application package, no need to manually export the model.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.package</span> <span class="kn">import</span> <span class="n">ModelServer</span>
+
+<span class="n">model_server</span> <span class="o">=</span> <span class="n">ModelServer</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">"bert_model_server"</span><span class="p">,</span>
+    <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="n">model</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Deploy, could just as easily deploy to Vespa Cloud:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">vespa.deployment</span> <span class="kn">import</span> <span class="n">VespaDocker</span>
+
+<span class="n">disk_folder</span> <span class="o">=</span> <span class="s2">"/Users/tmartins/model_server_docker"</span>
+<span class="n">vespa_docker</span> <span class="o">=</span> <span class="n">VespaDocker</span><span class="p">(</span><span class="n">disk_folder</span><span class="o">=</span><span class="n">disk_folder</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">8081</span><span class="p">)</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">vespa_docker</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span><span class="n">application_package</span><span class="o">=</span><span class="n">model_server</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Using framework PyTorch: 1.7.1
+Found input input_ids with shape: {0: 'batch', 1: 'sequence'}
+Found input token_type_ids with shape: {0: 'batch', 1: 'sequence'}
+Found input attention_mask with shape: {0: 'batch', 1: 'sequence'}
+Found output output_0 with shape: {0: 'batch'}
+Ensuring inputs are in correct order
+position_ids is not present in the generated input list.
+Generated inputs order: ['input_ids', 'attention_mask', 'token_type_ids']
+Waiting for configuration server.
+Waiting for configuration server.
+Waiting for configuration server.
+Finished deployment.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Get models available:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">app</span><span class="o">.</span><span class="n">get_model_endpoint</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'bert_tiny': 'http://localhost:8080/model-evaluation/v1/bert_tiny'}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Get information about a specific model:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">app</span><span class="o">.</span><span class="n">get_model_endpoint</span><span class="p">(</span><span class="s2">"bert_tiny"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'model': 'bert_tiny',
+ 'functions': [{'function': 'output_0',
+   'info': 'http://localhost:8080/model-evaluation/v1/bert_tiny/output_0',
+   'eval': 'http://localhost:8080/model-evaluation/v1/bert_tiny/output_0/eval',
+   'arguments': [{'name': 'input_ids', 'type': 'tensor(d0[],d1[])'},
+    {'name': 'attention_mask', 'type': 'tensor(d0[],d1[])'},
+    {'name': 'token_type_ids', 'type': 'tensor(d0[],d1[])'}]}]}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Get a prediction:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">app</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="s2">"this is a test"</span><span class="p">,</span> <span class="n">model_name</span><span class="o">=</span><span class="s2">"bert_tiny"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[0.009904447011649609, 0.04607260227203369]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="thigm85/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/vespa/pyvespa/stateless%20model%20evaluation/huggingface/2021/08/10/stateless-model-api.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal blog.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/thigm85" title="thigm85"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Thiagogm" title="Thiagogm"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
