@@ -15,3 +15,6 @@ __pycache__
 _notebooks/data/
 Pipfile
 .DS_Store
+code/search/vespa/beir/venv
+code/search/vespa/beir/.vespa
+code/search/vespa/beir/.ipynb_checkpoints
