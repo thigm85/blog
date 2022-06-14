@@ -1,0 +1,1789 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Load tabular data with TensorFlow | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Load tabular data with TensorFlow" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In-memory and out-of-memory tabular data loading with TensorFlow" />
+<meta property="og:description" content="In-memory and out-of-memory tabular data loading with TensorFlow" />
+<link rel="canonical" href="https://thigm85.github.io/blog/tensorflow/tabular_data/loading%20data/2022/06/14/tensorflow-load-tabular-data.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/tensorflow/tabular_data/loading%20data/2022/06/14/tensorflow-load-tabular-data.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-06-14T00:00:00-05:00" />
+<script type="application/ld+json">
+{"headline":"Load tabular data with TensorFlow","dateModified":"2022-06-14T00:00:00-05:00","datePublished":"2022-06-14T00:00:00-05:00","description":"In-memory and out-of-memory tabular data loading with TensorFlow","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/tensorflow/tabular_data/loading%20data/2022/06/14/tensorflow-load-tabular-data.html"},"@type":"BlogPosting","url":"https://thigm85.github.io/blog/tensorflow/tabular_data/loading%20data/2022/06/14/tensorflow-load-tabular-data.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/blog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+<link rel="shortcut icon" type="image/x-icon" href="/blog/images/favicon.ico"><!-- Begin Jekyll SEO tag v2.6.1 -->
+<title>Load tabular data with TensorFlow | Thiago G. Martins</title>
+<meta name="generator" content="Jekyll v4.0.0" />
+<meta property="og:title" content="Load tabular data with TensorFlow" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="In-memory and out-of-memory tabular data loading with TensorFlow" />
+<meta property="og:description" content="In-memory and out-of-memory tabular data loading with TensorFlow" />
+<link rel="canonical" href="https://thigm85.github.io/blog/tensorflow/tabular_data/loading%20data/2022/06/14/tensorflow-load-tabular-data.html" />
+<meta property="og:url" content="https://thigm85.github.io/blog/tensorflow/tabular_data/loading%20data/2022/06/14/tensorflow-load-tabular-data.html" />
+<meta property="og:site_name" content="Thiago G. Martins" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-06-14T00:00:00-05:00" />
+<script type="application/ld+json">
+{"headline":"Load tabular data with TensorFlow","dateModified":"2022-06-14T00:00:00-05:00","datePublished":"2022-06-14T00:00:00-05:00","description":"In-memory and out-of-memory tabular data loading with TensorFlow","mainEntityOfPage":{"@type":"WebPage","@id":"https://thigm85.github.io/blog/tensorflow/tabular_data/loading%20data/2022/06/14/tensorflow-load-tabular-data.html"},"@type":"BlogPosting","url":"https://thigm85.github.io/blog/tensorflow/tabular_data/loading%20data/2022/06/14/tensorflow-load-tabular-data.html","@context":"https://schema.org"}</script>
+<!-- End Jekyll SEO tag -->
+
+<link href="https://unpkg.com/@primer/css/dist/primer.css" rel="stylesheet" />
+<link rel="stylesheet" href="//use.fontawesome.com/releases/v5.0.7/css/all.css"><link type="application/atom+xml" rel="alternate" href="https://thigm85.github.io/blog/feed.xml" title="Thiago G. Martins" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<script>(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');ga('create','UA-28943273-1','auto');ga('require','displayfeatures');ga('send','pageview');</script>
+
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.css" integrity="sha384-zB1R0rpPzHqg7Kpt0Aljp8JPLqbXI3bhnPWROx27a9N0Ll6ZP/+DiW/UqRcLbRjq" crossorigin="anonymous">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/katex.min.js" integrity="sha384-y23I5Q6l+B6vatafAwxRu/0oK/79VlbSz7Q9aiSZUvyWYIYsd+qj+o24G5ZU2zJz" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.11.1/dist/contrib/auto-render.min.js" integrity="sha384-kWPLUVMOks5AQFrykwIup5lo0m3iMkkHrD0uJ4H5cjeGihAutqP0yW0J6dpFiVkI" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+<script type="text/javascript">
+require.config({
+  paths: {
+    jquery: 'https://code.jquery.com/jquery-3.5.0.min',
+    plotly: 'https://cdn.plot.ly/plotly-latest.min'
+  },
+
+  shim: {
+    plotly: {
+      deps: ['jquery'],
+      exports: 'plotly'
+    }
+  }
+});
+</script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head><body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/blog/">Thiago G. Martins</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/blog/about/">About Me</a><a class="page-link" href="/blog/search/">Search</a><a class="page-link" href="/blog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Load tabular data with TensorFlow</h1><p class="page-description">In-memory and out-of-memory tabular data loading with TensorFlow</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-06-14T00:00:00-05:00" itemprop="datePublished">
+        Jun 14, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/blog/categories/#tensorflow">tensorflow</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#tabular_data">tabular_data</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/blog/categories/#loading data">loading data</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-wrap flex-justify-end">
+          <div class="px-2">
+
+    <a href="https://github.com/thigm85/blog/tree/master/_notebooks/2022-06-14-tensorflow-load-tabular-data.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/blog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/thigm85/blog/blob/master/_notebooks/2022-06-14-tensorflow-load-tabular-data.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/blog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul class="section-nav">
+<li class="toc-entry toc-h2"><a href="#Required-packages">Required packages </a></li>
+<li class="toc-entry toc-h2"><a href="#In-memory-data---numeric-features">In-memory data - numeric features </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Load-data-with-pandas">Load data with pandas </a></li>
+<li class="toc-entry toc-h3"><a href="#Separate-label-and-features">Separate label and features </a></li>
+<li class="toc-entry toc-h3"><a href="#Numeric-features-as-numpy-array">Numeric features as numpy array </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#In-memory-data---mixed-data-types">In-memory data - mixed data types </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Load-data-with-pandas">Load data with pandas </a></li>
+<li class="toc-entry toc-h3"><a href="#Pre-process-mixed-type-data">Pre-process mixed type data </a></li>
+<li class="toc-entry toc-h3"><a href="#Parse-pandas-DataFrame-to-use-as-input">Parse pandas DataFrame to use as input </a></li>
+<li class="toc-entry toc-h3"><a href="#tf.data.Dataset-from-in-memory-data-through-from_tensor_slices">tf.data.Dataset from in-memory data through from_tensor_slices </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Create-tf.data.Dataset-from-CSV-file">Create tf.data.Dataset from CSV file </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Uncompressed-file">Uncompressed file </a></li>
+<li class="toc-entry toc-h3"><a href="#Compressed-file">Compressed file </a></li>
+<li class="toc-entry toc-h3"><a href="#List-of-files">List of files </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-06-14-tensorflow-load-tabular-data.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Required-packages">
+<a class="anchor" href="#Required-packages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Required packages<a class="anchor-link" href="#Required-packages"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">tensorflow</span> <span class="k">as</span> <span class="nn">tf</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="In-memory-data---numeric-features">
+<a class="anchor" href="#In-memory-data---numeric-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>In-memory data - numeric features<a class="anchor-link" href="#In-memory-data---numeric-features"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Load-data-with-pandas">
+<a class="anchor" href="#Load-data-with-pandas" aria-hidden="true"><span class="octicon octicon-link"></span></a>Load data with pandas<a class="anchor-link" href="#Load-data-with-pandas"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For small datasets, we can load them into memory using a pandas DataFrame.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">abalone_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
+    <span class="s2">"https://storage.googleapis.com/download.tensorflow.org/data/abalone_train.csv"</span><span class="p">,</span>
+    <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s2">"Length"</span><span class="p">,</span> <span class="s2">"Diameter"</span><span class="p">,</span> <span class="s2">"Height"</span><span class="p">,</span> <span class="s2">"Whole weight"</span><span class="p">,</span> <span class="s2">"Shucked weight"</span><span class="p">,</span>
+           <span class="s2">"Viscera weight"</span><span class="p">,</span> <span class="s2">"Shell weight"</span><span class="p">,</span> <span class="s2">"Age"</span><span class="p">])</span>
+
+<span class="n">abalone_train</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Length</th>
+      <th>Diameter</th>
+      <th>Height</th>
+      <th>Whole weight</th>
+      <th>Shucked weight</th>
+      <th>Viscera weight</th>
+      <th>Shell weight</th>
+      <th>Age</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.435</td>
+      <td>0.335</td>
+      <td>0.110</td>
+      <td>0.334</td>
+      <td>0.1355</td>
+      <td>0.0775</td>
+      <td>0.0965</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.585</td>
+      <td>0.450</td>
+      <td>0.125</td>
+      <td>0.874</td>
+      <td>0.3545</td>
+      <td>0.2075</td>
+      <td>0.2250</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.655</td>
+      <td>0.510</td>
+      <td>0.160</td>
+      <td>1.092</td>
+      <td>0.3960</td>
+      <td>0.2825</td>
+      <td>0.3700</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.545</td>
+      <td>0.425</td>
+      <td>0.125</td>
+      <td>0.768</td>
+      <td>0.2940</td>
+      <td>0.1495</td>
+      <td>0.2600</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.545</td>
+      <td>0.420</td>
+      <td>0.130</td>
+      <td>0.879</td>
+      <td>0.3740</td>
+      <td>0.1695</td>
+      <td>0.2300</td>
+      <td>13</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">abalone_train</span><span class="o">.</span><span class="n">dtypes</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>Length            float64
+Diameter          float64
+Height            float64
+Whole weight      float64
+Shucked weight    float64
+Viscera weight    float64
+Shell weight      float64
+Age                 int64
+dtype: object</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Separate-label-and-features">
+<a class="anchor" href="#Separate-label-and-features" aria-hidden="true"><span class="octicon octicon-link"></span></a>Separate label and features<a class="anchor-link" href="#Separate-label-and-features"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">abalone_features</span> <span class="o">=</span> <span class="n">abalone_train</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">abalone_label</span> <span class="o">=</span> <span class="n">abalone_features</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"Age"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">abalone_features</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Length</th>
+      <th>Diameter</th>
+      <th>Height</th>
+      <th>Whole weight</th>
+      <th>Shucked weight</th>
+      <th>Viscera weight</th>
+      <th>Shell weight</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.435</td>
+      <td>0.335</td>
+      <td>0.110</td>
+      <td>0.334</td>
+      <td>0.1355</td>
+      <td>0.0775</td>
+      <td>0.0965</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.585</td>
+      <td>0.450</td>
+      <td>0.125</td>
+      <td>0.874</td>
+      <td>0.3545</td>
+      <td>0.2075</td>
+      <td>0.2250</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.655</td>
+      <td>0.510</td>
+      <td>0.160</td>
+      <td>1.092</td>
+      <td>0.3960</td>
+      <td>0.2825</td>
+      <td>0.3700</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.545</td>
+      <td>0.425</td>
+      <td>0.125</td>
+      <td>0.768</td>
+      <td>0.2940</td>
+      <td>0.1495</td>
+      <td>0.2600</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.545</td>
+      <td>0.420</td>
+      <td>0.130</td>
+      <td>0.879</td>
+      <td>0.3740</td>
+      <td>0.1695</td>
+      <td>0.2300</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">abalone_label</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0     7
+1     6
+2    14
+3    16
+4    13
+Name: Age, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Numeric-features-as-numpy-array">
+<a class="anchor" href="#Numeric-features-as-numpy-array" aria-hidden="true"><span class="octicon octicon-link"></span></a>Numeric features as numpy array<a class="anchor-link" href="#Numeric-features-as-numpy-array"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>X and y can be used to fit a model.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">X</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">abalone_features</span><span class="p">),</span> <span class="n">abalone_label</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">X</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>array([[0.435 , 0.335 , 0.11  , ..., 0.1355, 0.0775, 0.0965],
+       [0.585 , 0.45  , 0.125 , ..., 0.3545, 0.2075, 0.225 ],
+       [0.655 , 0.51  , 0.16  , ..., 0.396 , 0.2825, 0.37  ],
+       ...,
+       [0.53  , 0.42  , 0.13  , ..., 0.3745, 0.167 , 0.249 ],
+       [0.395 , 0.315 , 0.105 , ..., 0.1185, 0.091 , 0.1195],
+       [0.45  , 0.355 , 0.12  , ..., 0.1145, 0.0665, 0.16  ]])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">y</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>0        7
+1        6
+2       14
+3       16
+4       13
+        ..
+3315    15
+3316    10
+3317    11
+3318    16
+3319    19
+Name: Age, Length: 3320, dtype: int64</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="In-memory-data---mixed-data-types">
+<a class="anchor" href="#In-memory-data---mixed-data-types" aria-hidden="true"><span class="octicon octicon-link"></span></a>In-memory data - mixed data types<a class="anchor-link" href="#In-memory-data---mixed-data-types"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Load-data-with-pandas">
+<a class="anchor" href="#Load-data-with-pandas" aria-hidden="true"><span class="octicon octicon-link"></span></a>Load data with pandas<a class="anchor-link" href="#Load-data-with-pandas"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">titanic</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"https://storage.googleapis.com/tf-datasets/titanic/train.csv"</span><span class="p">)</span>
+<span class="n">titanic</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>survived</th>
+      <th>sex</th>
+      <th>age</th>
+      <th>n_siblings_spouses</th>
+      <th>parch</th>
+      <th>fare</th>
+      <th>class</th>
+      <th>deck</th>
+      <th>embark_town</th>
+      <th>alone</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>male</td>
+      <td>22.0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>7.2500</td>
+      <td>Third</td>
+      <td>unknown</td>
+      <td>Southampton</td>
+      <td>n</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>female</td>
+      <td>38.0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>71.2833</td>
+      <td>First</td>
+      <td>C</td>
+      <td>Cherbourg</td>
+      <td>n</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1</td>
+      <td>female</td>
+      <td>26.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>7.9250</td>
+      <td>Third</td>
+      <td>unknown</td>
+      <td>Southampton</td>
+      <td>y</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1</td>
+      <td>female</td>
+      <td>35.0</td>
+      <td>1</td>
+      <td>0</td>
+      <td>53.1000</td>
+      <td>First</td>
+      <td>C</td>
+      <td>Southampton</td>
+      <td>n</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0</td>
+      <td>male</td>
+      <td>28.0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>8.4583</td>
+      <td>Third</td>
+      <td>unknown</td>
+      <td>Queenstown</td>
+      <td>y</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">titanic</span><span class="o">.</span><span class="n">dtypes</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>survived                int64
+sex                    object
+age                   float64
+n_siblings_spouses      int64
+parch                   int64
+fare                  float64
+class                  object
+deck                   object
+embark_town            object
+alone                  object
+dtype: object</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">titanic_features</span> <span class="o">=</span> <span class="n">titanic</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">titanic_label</span> <span class="o">=</span> <span class="n">titanic</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"survived"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Pre-process-mixed-type-data">
+<a class="anchor" href="#Pre-process-mixed-type-data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Pre-process mixed type data<a class="anchor-link" href="#Pre-process-mixed-type-data"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Create a pre-processing model that can be used as part of a larger model. The pre-processing model can for example concatenate and normalize all numeric features of type <code>float64</code> and apply one-hot encoding to the categorical features of type <code>object</code>. See for example the pre-processing contained <a href="https://www.tensorflow.org/tutorials/load_data/csv#mixed_data_types">here</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>titanic_preprocessing = tf.keras.Model(inputs, preprocessed_inputs_cat)</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once the pre-processing layer is setup we can use a dict of features to the model as input to the pre-processing layer:</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Parse-pandas-DataFrame-to-use-as-input">
+<a class="anchor" href="#Parse-pandas-DataFrame-to-use-as-input" aria-hidden="true"><span class="octicon octicon-link"></span></a>Parse pandas DataFrame to use as input<a class="anchor-link" href="#Parse-pandas-DataFrame-to-use-as-input"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">titanic_features_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> 
+                         <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">titanic_features</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Show first row of the dict:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">value</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">titanic_features_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'survived': array([0]),
+ 'sex': array(['male'], dtype=object),
+ 'age': array([22.]),
+ 'n_siblings_spouses': array([1]),
+ 'parch': array([0]),
+ 'fare': array([7.25]),
+ 'class': array(['Third'], dtype=object),
+ 'deck': array(['unknown'], dtype=object),
+ 'embark_town': array(['Southampton'], dtype=object),
+ 'alone': array(['n'], dtype=object)}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="tf.data.Dataset-from-in-memory-data-through-from_tensor_slices">
+<a class="anchor" href="#tf.data.Dataset-from-in-memory-data-through-from_tensor_slices" aria-hidden="true"><span class="octicon octicon-link"></span></a>tf.data.Dataset from in-memory data through from_tensor_slices<a class="anchor-link" href="#tf.data.Dataset-from-in-memory-data-through-from_tensor_slices"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">features_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">(</span><span class="n">titanic_features_dict</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Check first example:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">example</span> <span class="ow">in</span> <span class="n">features_ds</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">example</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+    <span class="k">break</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>survived: 0
+sex: b'male'
+age: 22.0
+n_siblings_spouses: 1
+parch: 0
+fare: 7.25
+class: b'Third'
+deck: b'unknown'
+embark_town: b'Southampton'
+alone: b'n'
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>The <code>from_tensor_slice</code> can handle any structure of nested dictionaries and tuples.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">titanic_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">Dataset</span><span class="o">.</span><span class="n">from_tensor_slices</span><span class="p">((</span><span class="n">titanic_features_dict</span><span class="p">,</span> <span class="n">titanic_label</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">feature</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">titanic_ds</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">feature</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Target: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">label</span><span class="p">))</span>
+    <span class="k">break</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>survived: 0
+sex: b'male'
+age: 22.0
+n_siblings_spouses: 1
+parch: 0
+fare: 7.25
+class: b'Third'
+deck: b'unknown'
+embark_town: b'Southampton'
+alone: b'n'
+Target: 0
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To train a model using this Dataset, you'll need to at least shuffle and batch the data.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">titanic_batches</span> <span class="o">=</span> <span class="n">titanic_ds</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">titanic_label</span><span class="p">))</span><span class="o">.</span><span class="n">batch</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>titanic_batches</code> can be used in fit functions instead of <code>X</code> and <code>y</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-tf.data.Dataset-from-CSV-file">
+<a class="anchor" href="#Create-tf.data.Dataset-from-CSV-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create tf.data.Dataset from CSV file<a class="anchor-link" href="#Create-tf.data.Dataset-from-CSV-file"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Uncompressed-file">
+<a class="anchor" href="#Uncompressed-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Uncompressed file<a class="anchor-link" href="#Uncompressed-file"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can create a tf.data.Dataset directly from a .csv file in case our data does not fit into memory.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">titanic_file_path</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+    <span class="s2">"train.csv"</span><span class="p">,</span> 
+    <span class="s2">"https://storage.googleapis.com/tf-datasets/titanic/train.csv"</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Download the dataset file:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">titanic_file_path</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'/Users/tmartins/.keras/datasets/train.csv'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Create a tf.data.Dataset from the .csv file above:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">titanic_csv_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">make_csv_dataset</span><span class="p">(</span>
+    <span class="n">titanic_file_path</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="c1"># Artificially small to make examples easier to show.</span>
+    <span class="n">label_name</span><span class="o">=</span><span class="s1">'survived'</span><span class="p">,</span>
+    <span class="n">num_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">ignore_errors</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Take the first batch of data from the tf.data.Dataset:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">batch</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">titanic_csv_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'label'</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>sex                 : [b'male' b'female' b'male' b'female' b'female']
+age                 : [43. 36. 50.  9. 44.]
+n_siblings_spouses  : [0 1 1 3 0]
+parch               : [0 0 0 2 0]
+fare                : [ 8.05   17.4    55.9    27.9    27.7208]
+class               : [b'Third' b'Third' b'First' b'Third' b'First']
+deck                : [b'unknown' b'unknown' b'E' b'unknown' b'B']
+embark_town         : [b'Southampton' b'Southampton' b'Southampton' b'Southampton' b'Cherbourg']
+alone               : [b'y' b'n' b'n' b'n' b'y']
+
+label               : [0 1 0 0 1]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Compressed-file">
+<a class="anchor" href="#Compressed-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>Compressed file<a class="anchor-link" href="#Compressed-file"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Download compressed file:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">traffic_volume_csv_gz</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+    <span class="s1">'Metro_Interstate_Traffic_Volume.csv.gz'</span><span class="p">,</span> 
+    <span class="s2">"https://archive.ics.uci.edu/ml/machine-learning-databases/00492/Metro_Interstate_Traffic_Volume.csv.gz"</span><span class="p">,</span>
+    <span class="n">cache_dir</span><span class="o">=</span><span class="s1">'.'</span><span class="p">,</span> 
+    <span class="n">cache_subdir</span><span class="o">=</span><span class="s1">'traffic'</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Setup <code>compression_type</code> argument to `"GZIP"``.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">traffic_volume_csv_gz_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">make_csv_dataset</span><span class="p">(</span>
+    <span class="n">traffic_volume_csv_gz</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">256</span><span class="p">,</span>
+    <span class="n">label_name</span><span class="o">=</span><span class="s1">'traffic_volume'</span><span class="p">,</span>
+    <span class="n">num_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">compression_type</span><span class="o">=</span><span class="s2">"GZIP"</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Take a peep at the first 5 values of each feature and label of the first batch.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">batch</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="n">traffic_volume_csv_gz_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">batch</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'label'</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">label</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>holiday             : [b'None' b'None' b'None' b'None' b'None']
+temp                : [296.68 294.37 275.68 270.68 275.74]
+rain_1h             : [0. 0. 0. 0. 0.]
+snow_1h             : [0. 0. 0. 0. 0.]
+clouds_all          : [ 0  0 90 75  1]
+weather_main        : [b'Clear' b'Clear' b'Clouds' b'Clouds' b'Clear']
+weather_description : [b'Sky is Clear' b'Sky is Clear' b'overcast clouds' b'broken clouds'
+ b'sky is clear']
+date_time           : [b'2013-08-12 20:00:00' b'2013-08-08 13:00:00' b'2013-04-10 07:00:00'
+ b'2013-01-08 04:00:00' b'2013-10-22 10:00:00']
+
+label               : [2805 5296 6812  758 4384]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="List-of-files">
+<a class="anchor" href="#List-of-files" aria-hidden="true"><span class="octicon octicon-link"></span></a>List of files<a class="anchor-link" href="#List-of-files"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Download a list of files:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fonts_zip</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">keras</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span>
+    <span class="s1">'fonts.zip'</span><span class="p">,</span>  <span class="s2">"https://archive.ics.uci.edu/ml/machine-learning-databases/00417/fonts.zip"</span><span class="p">,</span>
+    <span class="n">cache_dir</span><span class="o">=</span><span class="s1">'.'</span><span class="p">,</span> 
+    <span class="n">cache_subdir</span><span class="o">=</span><span class="s1">'fonts'</span><span class="p">,</span>
+    <span class="n">extract</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>List files downloaded:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="n">font_csvs</span> <span class="o">=</span>  <span class="nb">sorted</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s1">'fonts'</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.csv"</span><span class="p">))</span>
+<span class="n">font_csvs</span><span class="p">[:</span><span class="mi">10</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>['fonts/AGENCY.csv',
+ 'fonts/ARIAL.csv',
+ 'fonts/BAITI.csv',
+ 'fonts/BANKGOTHIC.csv',
+ 'fonts/BASKERVILLE.csv',
+ 'fonts/BAUHAUS.csv',
+ 'fonts/BELL.csv',
+ 'fonts/BERLIN.csv',
+ 'fonts/BERNARD.csv',
+ 'fonts/BITSTREAMVERA.csv']</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">len</span><span class="p">(</span><span class="n">font_csvs</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>153</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Create a tf.data.Dataset from a list of files:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fonts_ds</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">experimental</span><span class="o">.</span><span class="n">make_csv_dataset</span><span class="p">(</span>
+    <span class="n">file_pattern</span> <span class="o">=</span> <span class="s2">"fonts/*.csv"</span><span class="p">,</span>
+    <span class="n">batch_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> 
+    <span class="n">num_epochs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">num_parallel_reads</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+    <span class="n">shuffle_buffer_size</span><span class="o">=</span><span class="mi">10000</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Print features:</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">for</span> <span class="n">features</span> <span class="ow">in</span> <span class="n">fonts_ds</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">features</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">i</span><span class="o">&gt;</span><span class="mi">15</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">:</span><span class="s2">20s</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">'...'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[total: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">features</span><span class="p">)</span><span class="si">}</span><span class="s2"> features]"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>font                : [b'BERNARD' b'JAVANESE' b'ONYX' b'MINGLIU' b'ELEPHANT' b'BANKGOTHIC'
+ b'HANDPRINT' b'COMMERCIALSCRIPT' b'BERNARD' b'HARLOW']
+fontVariant         : [b'BERNARD MT CONDENSED' b'JAVANESE TEXT' b'ONYX' b'MINGLIU_HKSCS-EXTB'
+ b'ELEPHANT' b'BANKGOTHIC MD BT' b'scanned' b'COMMERCIALSCRIPT BT'
+ b'BERNARD MT CONDENSED' b'HARLOW SOLID ITALIC']
+m_label             : [176 219 103 195  72 186  54 100  68  97]
+strength            : [0.4 0.4 0.4 0.4 0.4 0.4 0.4 0.4 0.4 0.4]
+italic              : [0 1 1 1 0 0 0 1 0 0]
+orientation         : [0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]
+m_top               : [33 42 46 21 37 43  0 38 33 54]
+m_left              : [23 32 18 19 23 24  0 24 20 23]
+originalH           : [21 63 48 57 49 17 20 39 53 25]
+originalW           : [21 52 34 44 61 24 20 51 34 30]
+h                   : [20 20 20 20 20 20 20 20 20 20]
+w                   : [20 20 20 20 20 20 20 20 20 20]
+r0c0                : [  1   1   1   1 105   1   1   1 255   1]
+r0c1                : [  1   1   1   1 178  86   1   1 255   1]
+r0c2                : [  1   1   1   1 255 255   1   1 255   1]
+r0c3                : [  1   1   1   1 255 255   1   1 255   1]
+...
+[total: 412 features]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="thigm85/blog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/blog/tensorflow/tabular_data/loading%20data/2022/06/14/tensorflow-load-tabular-data.html" hidden></a>
+</article>
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/blog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/blog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/blog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>Personal blog.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/thigm85" target="_blank" title="thigm85"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/Thiagogm" target="_blank" title="Thiagogm"><svg class="svg-icon grey"><use xlink:href="/blog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
