@@ -136,7 +136,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      1 min read
+      2 min read
     
 </span></p>
 
@@ -184,6 +184,14 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h3"><a href="#Floats-and-Double">Floats and Double </a></li>
 <li class="toc-entry toc-h3"><a href="#Boolean">Boolean </a></li>
 <li class="toc-entry toc-h3"><a href="#Strings">Strings </a></li>
+<li class="toc-entry toc-h3"><a href="#Type-casting">Type casting </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Operators">Operators </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Assignment-operator">Assignment operator </a></li>
+<li class="toc-entry toc-h3"><a href="#Arithmetic-operators">Arithmetic operators </a></li>
+<li class="toc-entry toc-h3"><a href="#Boolean-operators">Boolean operators </a></li>
 </ul>
 </li>
 <li class="toc-entry toc-h2"><a href="#Reference">Reference </a></li>
@@ -431,6 +439,183 @@ window.onload = wrap_img;
 <div class="text_cell_render border-box-sizing rendered_html">
 <div class="highlight"><pre><span></span><span class="n">String</span> <span class="n">variable</span> <span class="o">=</span> <span class="s">"This is "</span> <span class="o">+</span> <span class="s">"a concatenated string."</span><span class="p">;</span>
 </pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Type-casting">
+<a class="anchor" href="#Type-casting" aria-hidden="true"><span class="octicon octicon-link"></span></a>Type casting<a class="anchor-link" href="#Type-casting"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// convert int to a double</span>
+<span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">2</span><span class="p">:</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">((</span><span class="kt">double</span><span class="p">)</span> <span class="n">a</span> <span class="o">/</span> <span class="n">b</span><span class="p">)</span> <span class="c1">// cast variable a from type int to type double</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// The result will be "53" because Java will convert 5 into a String</span>
+<span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">b</span> <span class="o">=</span> <span class="s">"3"</span><span class="p">;</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">);</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// The result will be 8 because Integer.parseInt(b) will convert b from String to int</span>
+<span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
+<span class="n">String</span> <span class="n">b</span> <span class="o">=</span> <span class="s">"3"</span><span class="p">;</span>
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="n">Integer</span><span class="p">.</span><span class="na">parseInt</span><span class="p">(</span><span class="n">b</span><span class="p">));</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Parse a String to a different type:<ul>
+<li><code>Integer.parseInt()</code></li>
+<li><code>Double.parseDouble()</code></li>
+<li><code>Boolean.parseBoolean()</code></li>
+</ul>
+</li>
+<li>Convert a different type to a String    <ul>
+<li><code>String.valueOf()</code></li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Operators">
+<a class="anchor" href="#Operators" aria-hidden="true"><span class="octicon octicon-link"></span></a>Operators<a class="anchor-link" href="#Operators"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Assignment-operator">
+<a class="anchor" href="#Assignment-operator" aria-hidden="true"><span class="octicon octicon-link"></span></a>Assignment operator<a class="anchor-link" href="#Assignment-operator"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>
+<code>=</code>: Assign value to a variable.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Arithmetic-operators">
+<a class="anchor" href="#Arithmetic-operators" aria-hidden="true"><span class="octicon octicon-link"></span></a>Arithmetic operators<a class="anchor-link" href="#Arithmetic-operators"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>
+<code>+</code>: Addition operator</li>
+<li>
+<code>-</code>: Subtraction operator</li>
+<li>
+<code>a++</code>: Increment the variable <code>a</code> by 1. Decrement variable <code>a--</code>.</li>
+<li>
+<code>a+=x</code>: Increment the variable <code>a</code> by x. Decrement variable a by x <code>a-=x</code>.</li>
+<li>
+<code>/</code>: Division operator.</li>
+<li>
+<code>a/=b</code>: <code>a = a / b</code>
+</li>
+<li>Interger division: Division between two <code>int</code> returns and <code>int</code> by removing the decimal part.</li>
+<li>
+<code>%</code>: Performs the division but returns the remainder </li>
+<li>
+<code>*</code>: Performs multiplication</li>
+<li>
+<code>a *= b</code>: <code>a = a * b</code>
+</li>
+<li>Java uses the PEMDAS method for determining order of operations.<ul>
+<li>P: Parentheses </li>
+<li>E: Exponents: powers and square roots</li>
+<li>MD: Multiplication and division - left to right</li>
+<li>AS: Addition and Subtraction - left to right</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Boolean-operators">
+<a class="anchor" href="#Boolean-operators" aria-hidden="true"><span class="octicon octicon-link"></span></a>Boolean operators<a class="anchor-link" href="#Boolean-operators"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>
+<code>==</code>: Check if two values are equal</li>
+<li>
+<code>!=</code>: Check if two values are not equal</li>
+<li>
+<code>&lt;</code> and <code>&lt;=</code>: Less and less than or equal operator </li>
+<li>
+<code>&gt;</code> and <code>&gt;=</code>: Greater and greater than or equal operator </li>
+<li>
+<code>&amp;&amp;</code>: and operator</li>
+<li>
+<code>||</code>: or operator</li>
+<li>
+<code>!</code>: not operator</li>
+<li>Short-circuting: If Java can determine the result of a boolean expression before evaluating the entire thing, it will stop and return the value.</li>
+<li>When evaluating complex boolean expresssions involving arithmetic operators<ul>
+<li>Evaluate all arithmetic operators according to PEMDAS</li>
+<li>Evaluate all boolean operators (order: parenthesis, not, and, or)</li>
+</ul>
+</li>
+</ul>
 
 </div>
 </div>
