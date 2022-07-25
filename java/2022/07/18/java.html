@@ -136,7 +136,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      2 min read
+      7 min read
     
 </span></p>
 
@@ -194,6 +194,24 @@ window.onload = wrap_img;
 <li class="toc-entry toc-h3"><a href="#Boolean-operators">Boolean operators </a></li>
 </ul>
 </li>
+<li class="toc-entry toc-h2"><a href="#Conditionals">Conditionals </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#If-statement">If statement </a></li>
+<li class="toc-entry toc-h3"><a href="#If-Else-statement">If Else statement </a></li>
+<li class="toc-entry toc-h3"><a href="#Nesting-multiple-if-else-statements">Nesting multiple if else statements </a></li>
+<li class="toc-entry toc-h3"><a href="#Switch-case-statement">Switch case statement </a></li>
+<li class="toc-entry toc-h3"><a href="#Switch-case-vs-If-else">Switch case vs If else </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Loops">Loops </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#For-loops">For loops </a></li>
+<li class="toc-entry toc-h3"><a href="#While-loops">While loops </a></li>
+<li class="toc-entry toc-h3"><a href="#Nested-loops">Nested loops </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Exception-handling">Exception handling </a></li>
+<li class="toc-entry toc-h2"><a href="#Scanner:-User-input">Scanner: User input </a></li>
 <li class="toc-entry toc-h2"><a href="#Reference">Reference </a></li>
 </ul><!--
 #################################################
@@ -616,6 +634,439 @@ window.onload = wrap_img;
 </ul>
 </li>
 </ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Conditionals">
+<a class="anchor" href="#Conditionals" aria-hidden="true"><span class="octicon octicon-link"></span></a>Conditionals<a class="anchor-link" href="#Conditionals"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="If-statement">
+<a class="anchor" href="#If-statement" aria-hidden="true"><span class="octicon octicon-link"></span></a>If statement<a class="anchor-link" href="#If-statement"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>If statements in Java must contain the following items:<ul>
+<li>the keyword if</li>
+<li>a boolean expression in parentheses</li>
+<li>curly braces surrounding all lines of code that will run if the boolean expression is true</li>
+<li>It is best practice to also indent the lines of code inside the curly braces to visually differentiate them from the commands that will always run.</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// Example of if statement</span>
+<span class="k">if</span><span class="p">(</span><span class="mi">5</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"1st command if true"</span><span class="p">);</span>
+  <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"2nd command if true"</span><span class="p">);</span>
+<span class="p">}</span>   
+<span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"I will always print!"</span><span class="p">);</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// Example of if statement using a compound conditional statement</span>
+<span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">16</span><span class="p">;</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="n">num</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">num</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Even and greater than 10"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="If-Else-statement">
+<a class="anchor" href="#If-Else-statement" aria-hidden="true"><span class="octicon octicon-link"></span></a>If Else statement<a class="anchor-link" href="#If-Else-statement"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// Example of if else statement</span>
+<span class="k">if</span> <span class="p">(</span><span class="mi">5</span> <span class="o">&gt;</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"The boolean expression is true"</span><span class="p">);</span>
+<span class="p">}</span>
+<span class="k">else</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"The boolean expression is false"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Nesting-multiple-if-else-statements">
+<a class="anchor" href="#Nesting-multiple-if-else-statements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Nesting multiple if else statements<a class="anchor-link" href="#Nesting-multiple-if-else-statements"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Nesting if else statements is more efficient than writing many if statements because nesting will interrupt the search as soon as one of the conditions is satisfied, while all the if statements are executed independent of conditions being satisfied.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">grade</span> <span class="o">=</span> <span class="mi">62</span><span class="p">;</span>
+<span class="k">if</span><span class="p">(</span><span class="n">grade</span> <span class="o">&lt;</span> <span class="mi">60</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"F"</span><span class="p">);</span> <span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">grade</span> <span class="o">&lt;</span> <span class="mi">70</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"D"</span><span class="p">);</span> <span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">grade</span> <span class="o">&lt;</span> <span class="mi">80</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"C"</span><span class="p">);</span> <span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">grade</span> <span class="o">&lt;</span> <span class="mi">90</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"B"</span><span class="p">);</span> <span class="p">}</span>
+<span class="k">else</span> <span class="k">if</span><span class="p">(</span><span class="n">grade</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"A"</span><span class="p">);</span> <span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Switch-case-statement">
+<a class="anchor" href="#Switch-case-statement" aria-hidden="true"><span class="octicon octicon-link"></span></a>Switch case statement<a class="anchor-link" href="#Switch-case-statement"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Here are the rules for writing a switch case statement:<ul>
+<li>Start with <code>switch</code> followed by the variable that is going to be tested in parentheses <code>()</code>
+</li>
+<li>All of the cases are surrounded by curly braces <code>{}</code>
+</li>
+<li>Each case is followed by a value (numeric or String) and a colon <code>:</code>
+</li>
+<li>After each <code>:</code> write the code that should run if the variable is equal to that value</li>
+<li>After each section of code, include <code>break;</code>
+</li>
+<li>As the very last case, use <code>default:</code> and specify what should happen if none of the above cases are true</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// Switch case example</span>
+<span class="kt">int</span> <span class="n">dayOfWeek</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+
+<span class="k">switch</span><span class="p">(</span><span class="n">dayOfWeek</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">case</span> <span class="mi">1</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Sunday"</span><span class="p">);</span> <span class="c1">//only prints if dayOfWeek == 1</span>
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">2</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Monday"</span><span class="p">);</span> <span class="c1">//only prints if dayOfWeek == 2</span>
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">3</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Tuesday"</span><span class="p">);</span> <span class="c1">//only prints if dayOfWeek == 3</span>
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">4</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Wednesday"</span><span class="p">);</span> <span class="c1">//only prints if dayOfWeek == 4</span>
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">5</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Thursday"</span><span class="p">);</span> <span class="c1">//only prints if dayOfWeek == 5</span>
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">6</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Friday"</span><span class="p">);</span> <span class="c1">//only prints if dayOfWeek == 6</span>
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">7</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Saturday"</span><span class="p">);</span> <span class="c1">//only prints if dayOfWeek == 7</span>
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">default</span> <span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Invalid"</span><span class="p">);</span> <span class="c1">//only prints if none of the above are true</span>
+
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// Switch case example with same command accross multiple cases</span>
+<span class="kt">int</span> <span class="n">grade</span> <span class="o">=</span> <span class="mi">62</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">letterGrade</span> <span class="o">=</span> <span class="n">grade</span> <span class="o">/</span> <span class="mi">10</span><span class="p">;</span>
+<span class="k">switch</span><span class="p">(</span><span class="n">letterGrade</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="mi">10</span><span class="p">:</span> <span class="k">case</span> <span class="mi">9</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"A"</span><span class="p">);</span> 
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">8</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"B"</span><span class="p">);</span> 
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">7</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"C"</span><span class="p">);</span> 
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">case</span> <span class="mi">6</span><span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"D"</span><span class="p">);</span> 
+                 <span class="k">break</span><span class="p">;</span>
+    <span class="k">default</span> <span class="p">:</span> <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"F"</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Switch-case-vs-If-else">
+<a class="anchor" href="#Switch-case-vs-If-else" aria-hidden="true"><span class="octicon octicon-link"></span></a>Switch case vs If else<a class="anchor-link" href="#Switch-case-vs-If-else"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>If Else is used for ranges - Switch Case is for values</li>
+<li>If Else is used for handling multiple variables<ul>
+<li>Switch case can only compare against values - not variables. </li>
+</ul>
+</li>
+<li>If Else is used for compound conditionals</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Loops">
+<a class="anchor" href="#Loops" aria-hidden="true"><span class="octicon octicon-link"></span></a>Loops<a class="anchor-link" href="#Loops"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="For-loops">
+<a class="anchor" href="#For-loops" aria-hidden="true"><span class="octicon octicon-link"></span></a>For loops<a class="anchor-link" href="#For-loops"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Loop #"</span> <span class="o">+</span> <span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="While-loops">
+<a class="anchor" href="#While-loops" aria-hidden="true"><span class="octicon octicon-link"></span></a>While loops<a class="anchor-link" href="#While-loops"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Same result implemented with for loop and while loop</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// Example with for loop</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Loop#: "</span><span class="o">+</span><span class="n">i</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Same example with while loop</span>
+<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="mi">5</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Loop# "</span><span class="o">+</span><span class="n">i</span><span class="p">);</span>
+  <span class="n">i</span><span class="o">++</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>When to use a <code>while</code> loop<ul>
+<li>
+<code>while</code> loops are actually more useful when you are waiting for a certain event to occur but you don't know how many iterations it will take.</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Infinite loop with break statement</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="k">while</span><span class="p">(</span><span class="kc">true</span><span class="p">){</span>
+  <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"This is an infinite loop"</span><span class="p">);</span>
+  <span class="kt">int</span> <span class="n">randNum</span> <span class="o">=</span> <span class="n">random</span><span class="p">.</span><span class="na">nextInt</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// random integer between 1 and 100</span>
+
+  <span class="k">if</span><span class="p">(</span><span class="n">randNum</span> <span class="o">&gt;</span> <span class="mi">75</span><span class="p">){</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"The loop has ended"</span><span class="p">);</span>
+    <span class="k">break</span><span class="p">;</span> <span class="c1">// stop and exit the loop</span>
+  <span class="p">}</span> <span class="c1">// close if condition</span>
+<span class="p">}</span> <span class="c1">// close while loop</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Nested-loops">
+<a class="anchor" href="#Nested-loops" aria-hidden="true"><span class="octicon octicon-link"></span></a>Nested loops<a class="anchor-link" href="#Nested-loops"> </a>
+</h3>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// Nested loop example</span>
+<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">row</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">row</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">row</span><span class="o">++</span><span class="p">){</span>
+    <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">col</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">col</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">;</span> <span class="n">col</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"#"</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">""</span><span class="p">);</span> <span class="c1">//adds new line</span>
+<span class="p">}</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Exception-handling">
+<a class="anchor" href="#Exception-handling" aria-hidden="true"><span class="octicon octicon-link"></span></a>Exception handling<a class="anchor-link" href="#Exception-handling"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// Example using exception handling via try and catch</span>
+<span class="kt">double</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">double</span> <span class="n">input</span><span class="p">;</span>
+<span class="n">Scanner</span> <span class="n">sc</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Scanner</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="na">in</span><span class="p">);</span>
+
+<span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Enter a number to add to sum. "</span><span class="p">);</span>
+  <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Or enter a non-number to quit and calculate sum."</span><span class="p">);</span>
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="n">input</span> <span class="o">=</span> <span class="n">Double</span><span class="p">.</span><span class="na">parseDouble</span><span class="p">(</span><span class="n">sc</span><span class="p">.</span><span class="na">next</span><span class="p">());</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">input</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">catch</span> <span class="p">(</span><span class="n">NumberFormatException</span> <span class="n">ignore</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Sum = "</span> <span class="o">+</span> <span class="n">result</span><span class="p">);</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="p">}</span>  
+<span class="p">}</span>
+
+<span class="n">sc</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Scanner:-User-input">
+<a class="anchor" href="#Scanner:-User-input" aria-hidden="true"><span class="octicon octicon-link"></span></a>Scanner: User input<a class="anchor-link" href="#Scanner:-User-input"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<div class="highlight"><pre><span></span><span class="c1">// Example using user input with Scanner</span>
+<span class="kt">double</span> <span class="n">result</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="kt">double</span> <span class="n">input</span><span class="p">;</span>
+<span class="n">Scanner</span> <span class="n">sc</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Scanner</span><span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="na">in</span><span class="p">);</span>
+
+<span class="k">while</span> <span class="p">(</span><span class="kc">true</span><span class="p">)</span> <span class="p">{</span>
+  <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">print</span><span class="p">(</span><span class="s">"Enter a number to add to sum. "</span><span class="p">);</span>
+  <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Or enter a non-number to quit and calculate sum."</span><span class="p">);</span>
+  <span class="k">try</span> <span class="p">{</span>
+    <span class="n">input</span> <span class="o">=</span> <span class="n">Double</span><span class="p">.</span><span class="na">parseDouble</span><span class="p">(</span><span class="n">sc</span><span class="p">.</span><span class="na">next</span><span class="p">());</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">result</span> <span class="o">+</span> <span class="n">input</span><span class="p">;</span>
+  <span class="p">}</span>
+  <span class="k">catch</span> <span class="p">(</span><span class="n">NumberFormatException</span> <span class="n">ignore</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">System</span><span class="p">.</span><span class="na">out</span><span class="p">.</span><span class="na">println</span><span class="p">(</span><span class="s">"Sum = "</span> <span class="o">+</span> <span class="n">result</span><span class="p">);</span>
+    <span class="k">break</span><span class="p">;</span>
+  <span class="p">}</span>  
+<span class="p">}</span>
+
+<span class="n">sc</span><span class="p">.</span><span class="na">close</span><span class="p">();</span>
+</pre></div>
 
 </div>
 </div>
